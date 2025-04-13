@@ -2,7 +2,6 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { UserRole } from "@/store/slices/auth/authTypes";
-import Loading from "@/components/ui/Loading";
 
 interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
