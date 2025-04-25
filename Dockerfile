@@ -13,4 +13,4 @@ EXPOSE 3000
 
 # Default command runs the development server
 # The --host 0.0.0.0 flag makes the server accessible from outside the container
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
