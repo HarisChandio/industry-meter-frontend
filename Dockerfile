@@ -9,7 +9,7 @@ COPY package*.json ./
 RUN npm ci
 
 # Expose port 3000
-EXPOSE 3000
+EXPOSE 5173
 
 # Default command runs the development server
 # The --host 0.0.0.0 flag makes the server accessible from outside the container
