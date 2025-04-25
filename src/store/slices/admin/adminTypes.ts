@@ -6,6 +6,36 @@ export interface GetMeters {
     updated_at: string;
 }
 
+export interface DeviceData {
+    id: number;
+    meter: number;
+    timestamp: string;
+    engine_hours: number;
+    frequency_hz: number;
+    power_percentage: number;
+    phase_a_voltage_v: number;
+    phase_a_current_a: number;
+    phase_b_voltage_v: number;
+    phase_b_current_a: number;
+    phase_c_voltage_v: number;
+    phase_c_current_a: number;
+    coolant_temp_c: number;
+    oil_pressure_kpa: number;
+    battery_voltage_v: number;
+    fuel_level_percent: number;
+    rpm: number;
+    oil_temp_c: number;
+    boost_pressure_kpa: number;
+    intake_air_temp_c: number;
+    fuel_rate_lph: number;
+    instantaneous_power_kw: number;
+    alarm_emergency_stop: boolean;
+    alarm_low_oil_pressure: boolean;
+    alarm_high_coolant_temp: boolean;
+    alarm_low_coolant_level: boolean;
+    alarm_crank_failure: boolean;
+}
+
 export interface Manager {
     id: number;
     username: string;
@@ -35,7 +65,7 @@ export interface AssignMeterPayload {
 }
 
 export interface AssignEngineerPayload {
-    manager_id: number;
+    meter_id: number;
     engineer_id: number;
 }
 
@@ -61,8 +91,23 @@ export interface MeterAssignment {
 
 export interface ManagerDetail {
     manager: Manager;
-    assignments: MeterAssignment[];
+    meter_assignments: MeterAssignment[];
     engineer_assignments: EngineerAssignment[];
+    meters: GetMeters[];
+    engineers: Engineer[];
+}
+
+export interface GenerateReportPayload {
+    meter_id: string;
+    time_range: 'last_24' | 'last_week' | 'last_month' | 'custom';
+    start_date?: string; // Optional for custom time range
+    end_date?: string;   // Optional for custom time range
+}
+
+export interface ReportResponse {
+    message: string;
+    filename: string;
+    download_url: string;
 }
 
 export interface AdminState {
@@ -72,6 +117,8 @@ export interface AdminState {
     meterAssignments: MeterAssignment[];
     engineerAssignments: EngineerAssignment[];
     managerDetail: ManagerDetail | null;
+    currentDeviceData: DeviceData | null;
+    reportData: ReportResponse | null;
     isLoading: boolean;
     error: string | null;
-} 
+}

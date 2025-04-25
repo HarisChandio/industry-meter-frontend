@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Users,
-  Settings,
+  // Settings,
   Menu,
   X,
   LogOut,
@@ -24,39 +24,55 @@ interface NavItem {
   allowedRoles?: UserRole[];
 }
 
-// Organized navigation items by category with role-based access
-const navItems: {
-  main: NavItem[];
-  settings: NavItem[];
-} = {
-  main: [
-    {
-      name: "Dashboard",
-      href: "/dashboard",
-      icon: <LayoutDashboard size={18} />,
-      allowedRoles: ["ADMIN", "MANAGER", "ENGINEER"],
-    },
-    {
-      name: "Managers",
-      href: "/managers",
-      icon: <Users size={18} />,
-      allowedRoles: ["ADMIN"],
-    },
-    {
-      name: "Engineers",
-      href: "/engineers",
-      icon: <HardHat size={18} />,
-      allowedRoles: ["ADMIN", "MANAGER"],
-    },
-  ],
-  settings: [
-    {
-      name: "Settings",
-      href: "/settings",
-      icon: <Settings size={18} />,
-      allowedRoles: ["ADMIN", "MANAGER", "ENGINEER"],
-    },
-  ],
+// Function to get role-specific navigation items
+const getMainNavItems = (userRole: string): NavItem[] => {
+  if (userRole === "ADMIN") {
+    return [
+      {
+        name: "Dashboard",
+        href: "/admin/dashboard",
+        icon: <LayoutDashboard size={18} />,
+        allowedRoles: ["ADMIN", "MANAGER", "ENGINEER"],
+      },
+      {
+        name: "Managers",
+        href: "/admin/managers",
+        icon: <Users size={18} />,
+        allowedRoles: ["ADMIN"],
+      },
+      {
+        name: "Engineers",
+        href: "/admin/engineers",
+        icon: <HardHat size={18} />,
+        allowedRoles: ["ADMIN", "MANAGER"],
+      },
+    ];
+  } else if (userRole === "MANAGER") {
+    return [
+      {
+        name: "Dashboard",
+        href: "/manager/dashboard",
+        icon: <LayoutDashboard size={18} />,
+        allowedRoles: ["MANAGER", "ENGINEER"],
+      },
+      {
+        name: "Engineers",
+        href: "/manager/engineer",
+        icon: <HardHat size={18} />,
+        allowedRoles: ["MANAGER"],
+      },
+    ];
+  } else if (userRole === "ENGINEER") {
+    return [
+      {
+        name: "Dashboard",
+        href: "/engineer/dashboard",
+        icon: <LayoutDashboard size={18} />,
+        allowedRoles: ["ENGINEER"],
+      },
+    ];
+  }
+  return [];
 };
 
 export default function Sidebar() {
@@ -67,6 +83,22 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Define navigation items with dynamic main section
+  const navItems: {
+    main: NavItem[];
+    // settings: NavItem[];
+  } = {
+    main: getMainNavItems(userRole),
+    // settings: [
+    //   {
+    //     name: "Settings",
+    //     href: "/settings",
+    //     icon: <Settings size={18} />,
+    //     allowedRoles: ["ADMIN", "MANAGER", "ENGINEER"],
+    //   },
+    // ],
+  };
 
   // Handle window resize for responsive behavior
   useEffect(() => {
@@ -147,20 +179,6 @@ export default function Sidebar() {
     );
   };
 
-  // Get role color based on user role
-  const getRoleColor = () => {
-    switch (userRole) {
-      case "ADMIN":
-        return "bg-red-500";
-      case "MANAGER":
-        return "bg-blue-500";
-      case "ENGINEER":
-        return "bg-green-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
   return (
     <>
       {/* Mobile toggle button */}
@@ -191,20 +209,20 @@ export default function Sidebar() {
           <div className="p-4 border-b border-gray-700">
             <div className="flex items-center justify-center">
               <Gauge className="mr-2 text-accent-color" size={35} />
-              <h1 className="text-xl font-bold">Smart Meter</h1>
+              <h1 className="text-xl font-bold">RozWelControl</h1>
             </div>
           </div>
 
           <div className="py-6 px-2 flex-1 overflow-y-auto">
             <NavLinks items={navItems.main} title="Main" />
-            <NavLinks items={navItems.settings} title="Settings" />
+            {/* <NavLinks items={navItems.settings} title="Settings" /> */}
           </div>
 
           <div className="p-4 border-t border-gray-700">
             <div className="flex items-center gap-3 justify-between">
               <div className="flex items-center">
                 <div
-                  className={`h-9 w-9 ${getRoleColor()} rounded-md flex items-center justify-center truncate text-white font-semibold shadow-md`}
+                  className={`h-9 w-9 bg-green-500 rounded-md flex items-center justify-center truncate text-white font-semibold shadow-md`}
                 >
                   {user?.username?.[0]?.toUpperCase() || "U"}
                 </div>
@@ -214,7 +232,7 @@ export default function Sidebar() {
                   </p>
                   <span className="text-xs text-gray-400 flex items-center">
                     <span
-                      className={`h-2 w-2 rounded-full ${getRoleColor()} mr-1.5`}
+                      className={`h-2 w-2 rounded-full bg-green-500 mr-1.5`}
                     ></span>
                     {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
                   </span>

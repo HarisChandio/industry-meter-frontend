@@ -3,12 +3,22 @@ import { login, signUp, fetchUserData } from './authThunks';
 import { toast } from 'sonner';
 import { AuthState } from './authTypes';
 import { getCookie, setCookie, removeCookie } from '../../../utils/cookies';
+import { cleanupAxiosInterceptors } from '../../../lib/axios';
 
 // Get initial values from cookies
 const token = getCookie('token');
 const refreshToken = getCookie('refreshToken');
 const storedUser = getCookie('user');
-const user = storedUser ? JSON.parse(storedUser) : null;
+
+// Add error handling for JSON parsing
+let user = null;
+try {
+  user = storedUser ? JSON.parse(storedUser) : null;
+} catch (error) {
+  console.error('Failed to parse user data from cookie:', error);
+  // Invalid user data in cookie, remove it
+  removeCookie('user');
+}
 
 const initialState: AuthState = {
     isAuthenticated: !!token, // Convert token to boolean
@@ -31,6 +41,8 @@ const authSlice = createSlice({
             removeCookie('token');
             removeCookie('refreshToken');
             removeCookie('user');
+            // Clean up any pending axios interceptors
+            cleanupAxiosInterceptors();
             toast.success('Logged out successfully');
         },
         tokenRefreshed: (state, action) => {
@@ -126,6 +138,8 @@ const authSlice = createSlice({
             removeCookie('token');
             removeCookie('refreshToken');
             removeCookie('user');
+            // Clean up any pending axios interceptors
+            cleanupAxiosInterceptors();
         });
     },
 });

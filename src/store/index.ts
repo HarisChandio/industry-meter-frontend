@@ -1,6 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authSlice from './slices/auth/authSlice';
 import adminSlice from './slices/admin/adminSlice';
+import managerSlice from './slices/manager/managerSlice';
+import engineerSlice from './slices/engineer/engineerSlice';
 import { setStoreRef } from '../lib/axios';
 
 // Create the store
@@ -8,6 +10,8 @@ export const store = configureStore({
     reducer: {
         auth: authSlice,
         admin: adminSlice,
+        manager: managerSlice,
+        engineer: engineerSlice,
     },
 });
 

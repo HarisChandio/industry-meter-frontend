@@ -1,6 +1,5 @@
-import Engineer from "../../components/engineer/Engineer";
+import Devices from "@/components/engineer";
 
 export default function EngineerPage() {
-  return <Engineer />;
+  return <Devices />;
 }
-

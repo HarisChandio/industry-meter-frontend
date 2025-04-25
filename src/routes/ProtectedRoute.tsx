@@ -2,6 +2,8 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { UserRole } from "@/store/slices/auth/authTypes";
+import { getCookie } from "@/utils/cookies";
+// import Loading from "@/components/ui/Loading";
 
 interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
@@ -12,12 +14,10 @@ export default function ProtectedRoute({
   allowedRoles,
   children,
 }: ProtectedRouteProps) {
-  const { isAuthenticated, user, isLoading } = useSelector(
+  const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.auth
   );
-  console.log("user", user);
-  console.log("isAuthenticated", isAuthenticated);
-  console.log("isLoading", isLoading);
+  const token = getCookie("token");
 
   // Show loading state while checking authentication
   // if (isLoading) {
@@ -26,6 +26,10 @@ export default function ProtectedRoute({
 
   // If not authenticated, redirect to login
   if (!isAuthenticated) {
+    return <Navigate to="/sign-in" replace />;
+  }
+
+  if (!token) {
     return <Navigate to="/sign-in" replace />;
   }
 
@@ -45,5 +49,15 @@ export default function ProtectedRoute({
   }
 
   // If role is not allowed, redirect to dashboard
-  return <Navigate to="/dashboard" replace />;
+  return (
+    <>
+      {user?.role === "ADMIN" && <Navigate to="/admin/dashboard" replace />}
+      {user?.role === "MANAGER" && (
+        <Navigate to="/manager/dashboard" replace />
+      )}
+      {user?.role === "ENGINEER" && (
+        <Navigate to="/engineer/dashboard" replace />
+      )}
+    </>
+  );
 }

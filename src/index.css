@@ -80,6 +80,19 @@
   --accent-hover: #9b6fdb;
 }
 
+:root{
+  --color-bg-primary: #101828;
+  --color-bg-secondary: #1E2939;
+  --color-bg-green: #00C951;
+  --color-bg-accent: #bb86fc;
+  --color-bg-accent-hover: #9b6fdb;
+  --color-border-accent: #bb86fc;
+  --color-border-accent-hover: #9b6fdb;
+  --color-border-secondary: #ffffff;
+  --color-text-primary: #D1D5DC;
+  --color-text-secondary: #ffffff;
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -189,4 +202,3 @@
 .no-scrollbar {
   scrollbar-width: none;
 }
-

@@ -36,16 +36,37 @@ export const setStoreRef = (store: any) => {
 // Flag to prevent multiple refresh attempts
 let isRefreshing = false;
 // Queue of requests to retry after token refresh
-let refreshSubscribers: Array<(token: string) => void> = [];
+let refreshSubscribers: Array<{
+    resolve: (value: any) => void;
+    reject: (reason?: any) => void;
+    request: any;
+}> = [];
 
-// Function to add request to queue
-const subscribeToTokenRefresh = (callback: (token: string) => void) => {
-    refreshSubscribers.push(callback);
+// Function to add request to queue with proper promise handling
+const addToRefreshQueue = (request: any) => {
+    return new Promise((resolve, reject) => {
+        refreshSubscribers.push({
+            resolve,
+            reject,
+            request
+        });
+    });
 };
 
 // Function to retry queued requests with new token
 const onTokenRefreshed = (newToken: string) => {
-    refreshSubscribers.forEach(callback => callback(newToken));
+    refreshSubscribers.forEach(({ resolve, request }) => {
+        request.headers['Authorization'] = `Bearer ${newToken}`;
+        resolve(apiClient(request));
+    });
+    refreshSubscribers = [];
+};
+
+// Function to reject all queued requests
+const rejectQueuedRequests = (error: any) => {
+    refreshSubscribers.forEach(({ reject }) => {
+        reject(error);
+    });
     refreshSubscribers = [];
 };
 
@@ -70,11 +91,17 @@ apiClient.interceptors.response.use(
                 isRefreshing = true;
 
                 try {
-                    // Try to refresh the token
+                    // Try to refresh the token with timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second timeout
+
                     const response = await axios.post(
                         `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh/`,
-                        { refresh: refreshToken }
+                        { refresh: refreshToken },
+                        { signal: controller.signal }
                     );
+
+                    clearTimeout(timeoutId);
 
                     const { access, refresh } = response.data;
 
@@ -100,9 +127,12 @@ apiClient.interceptors.response.use(
 
                     // Retry the original request
                     return apiClient(originalRequest);
-                } catch (refreshError) {
+                } catch (refreshError: any) {
                     // Refresh failed, logout
                     isRefreshing = false;
+
+                    // Reject all queued requests
+                    rejectQueuedRequests(refreshError);
 
                     if (storeRef) {
                         storeRef.dispatch({ type: 'auth/logout' });
@@ -118,12 +148,7 @@ apiClient.interceptors.response.use(
 
             // If we're already refreshing, queue this request
             if (isRefreshing) {
-                return new Promise(resolve => {
-                    subscribeToTokenRefresh(token => {
-                        originalRequest.headers['Authorization'] = `Bearer ${token}`;
-                        resolve(apiClient(originalRequest));
-                    });
-                });
+                return addToRefreshQueue(originalRequest);
             }
 
             // No refresh token, logout
@@ -140,4 +165,17 @@ apiClient.interceptors.response.use(
     }
 );
 
-export default apiClient; 
+export default apiClient;
+
+// Helper function to reset the refresh state
+export const resetRefreshState = () => {
+    isRefreshing = false;
+    refreshSubscribers = [];
+};
+
+// Cleanup function to be called when app unmounts or user logs out
+export const cleanupAxiosInterceptors = () => {
+    // Reject any pending requests in the queue
+    rejectQueuedRequests(new Error('User logged out'));
+    resetRefreshState();
+};

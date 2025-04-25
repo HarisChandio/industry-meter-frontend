@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchMeters, addDevice, deleteDevice, fetchManagers, fetchEngineers, assignMeterToManager, assignEngineerToManager, fetchManagerDetails } from './adminThunks';
+import { fetchMeters, addDevice, deleteDevice, fetchManagers, fetchEngineers, assignMeterToManager, assignEngineerToManager, fetchManagerDetails, fetchDeviceData, generateMeterReport, generateAlarmMeterReport } from './adminThunks';
 import { AdminState } from './adminTypes';
 import { toast } from 'sonner';
 
@@ -10,6 +10,8 @@ const initialState: AdminState = {
     meterAssignments: [],
     engineerAssignments: [],
     managerDetail: null,
+    currentDeviceData: null,
+    reportData: null,
     isLoading: false,
     error: null
 };
@@ -172,8 +174,60 @@ const adminSlice = createSlice({
             state.error = action.payload as string || 'Failed to fetch manager details';
             toast.error('Failed to load manager details');
         });
+
+        // Fetch Device Data
+        builder.addCase(fetchDeviceData.pending, (state) => {
+            state.isLoading = true;
+            state.error = null;
+        });
+        builder.addCase(fetchDeviceData.fulfilled, (state, action) => {
+            state.currentDeviceData = action.payload;
+            console.log("Device Data:", action.payload);
+            state.isLoading = false;
+            state.error = null;
+        });
+        builder.addCase(fetchDeviceData.rejected, (state, action) => {
+            state.isLoading = false;
+            state.error = action.payload as string || 'Failed to fetch device data';
+            toast.error('Failed to load device data');
+        });
+
+        // Generate Meter Report
+        builder.addCase(generateMeterReport.pending, (state) => {
+            state.isLoading = true;
+            state.error = null;
+        });
+        builder.addCase(generateMeterReport.fulfilled, (state, action) => {
+            state.reportData = action.payload;
+            state.isLoading = false;
+            state.error = null;
+            toast.success('Report generated successfully');
+        });
+        builder.addCase(generateMeterReport.rejected, (state, action) => {
+            state.isLoading = false;
+            state.error = action.payload as string || 'Failed to generate report';
+            toast.error('Failed to generate meter report');
+        })
+
+        builder.addCase(generateAlarmMeterReport.pending
+, (state) => {
+            state.isLoading = true;
+            state.error = null;
+        });
+        builder.addCase(generateAlarmMeterReport.fulfilled, (state, action) => {
+            state.reportData = action.payload;
+            state.isLoading = false;
+            state.error = null;
+            toast.success('Alarm report generated successfully');
+        });
+        builder.addCase(generateAlarmMeterReport.rejected, (state, action) => {
+            state.isLoading = false;
+            state.error = action.payload as string || 'Failed to generate alarm report';
+            toast.error('Failed to generate alarm meter report');
+        });
+
     },
 });
 
 export const { clearErrors } = adminSlice.actions;
-export default adminSlice.reducer; 
+export default adminSlice.reducer;

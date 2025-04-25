@@ -110,11 +110,18 @@ export default function AuthForm({ type }: { type: FormType }) {
             form.reset();
             navigate("/sign-in");
           } else {
-            toast.error("Registration failed.");
+            const errorData = resultAction.payload as any;
+            // Handle object error messages by converting to string
+            const errorMessage =
+              typeof errorData === "object"
+                ? JSON.stringify(errorData)
+                : errorData || "Registration failed. Please try again.";
+            toast.error(errorMessage);
           }
         } catch (error) {
-          console.error(error);
-          toast.error("Registration failed. Please try again.");
+          if (error instanceof Error) {
+            toast.error(`Registration failed: ${error.message}`);
+          }
         } finally {
           setIsLoading(false);
         }
@@ -132,18 +139,29 @@ export default function AuthForm({ type }: { type: FormType }) {
 
         // Check if the action was fulfilled (login successful)
         if (login.fulfilled.match(resultAction)) {
-          console.log("Login response:", resultAction.payload);
           form.reset();
-          navigate("/dashboard");
-        } else {
-          // Login rejected - don't navigate, just show error
-          console.error("Login failed:", resultAction);
-          toast.error("Login failed: Invalid credentials");
-          // Keep the form values for user to try again
+          localStorage.setItem("role", resultAction.payload.role);
+          if (resultAction.payload.role === "ADMIN") {
+            navigate("/admin/dashboard");
+          } else if (resultAction.payload.role === "MANAGER") {
+            navigate("/admin/dashboard");
+          } else if (resultAction.payload.role === "ENGINEER") {
+            navigate("/admin/dashboard");
+          }
+        }
+        if (login.rejected.match(resultAction)) {
+          const errorData = resultAction.payload as any;
+          // Handle object error messages by converting to string
+          const errorMessage =
+            typeof errorData === "object"
+              ? JSON.stringify(errorData)
+              : errorData || "Login failed";
+          toast.error(errorMessage);
         }
       } catch (error) {
         console.error(error);
         if (error instanceof Error) {
+          console.log(error.message);
           toast.error(`Login failed: ${error.message}`);
         }
       } finally {
@@ -158,7 +176,7 @@ export default function AuthForm({ type }: { type: FormType }) {
     <div className=" rounded-md border border-gray-300 w-[400px] ">
       <div className="flex flex-col gap-3 py-8 px-3 sm:px-6 items-center justify-center bg-gray-800/80 rounded-md ">
         <h1 className="text-2xl font-bold text-center flex items-center ">
-          <Gauge className="mr-2 text-accent-color" size={35} /> Smart Meter
+          <Gauge className="mr-2 text-accent-color" size={35} /> RozWelControl
         </h1>
         <p>Please enter your details</p>
 

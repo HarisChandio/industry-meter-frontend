@@ -1,7 +1,7 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addDevice, fetchMeters } from "../../store/slices/admin/adminThunks";
+import { addDevice, fetchMeters, fetchDeviceData } from "../../store/slices/admin/adminThunks";
 import { RootState, AppDispatch } from "../../store";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import AddDialogBox from "./AddDialogBox";
@@ -25,6 +25,7 @@ export default function Devices() {
   );
   const [isAddDeviceOpen, setIsAddDeviceOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredMeters, setFilteredMeters] = useState(get_meters);
 
@@ -61,16 +62,21 @@ export default function Devices() {
     form.reset();
   };
 
-  //   if (isLoading) {
-  //     return (
-  //       <div className="flex justify-center items-center h-40">
-  //         Loading devices...
-  //       </div>
-  //     );
-  //   }
-
   const handleAddDevice = () => {
     setIsAddDeviceOpen(true);
+  };
+
+  const handleDeviceClick = (device_id: number) => {
+    console.log("Device ID clicked:", device_id);
+    dispatch(fetchDeviceData(device_id))
+      .unwrap()
+      .then(() => {
+        // Make sure we're navigating after the data is loaded
+        navigate(`/dashboard/${device_id}`);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch device data:", error);
+      });
   };
 
   return (
@@ -106,6 +112,7 @@ export default function Devices() {
               key={meter.id}
               to={`/dashboard/${meter.device_id}`}
               className="cursor-pointer bg-gray-800 p-4 rounded-lg hover:bg-gray-700 transition-colors"
+              onClick={() => handleDeviceClick(meter.device_id)}
             >
               <div className="flex flex-col">
                 <span className="font-semibold text-lg ">

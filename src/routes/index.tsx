@@ -1,22 +1,35 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 import ErrorPage from "@/pages/ErrorPage";
 import AuthLayout from "@/layout/AuthLayout";
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import DashboardLayout from "@/layout/DashboardLayout";
-import Dashboard from "@/pages/dashboard";
-import Device from "@/pages/dashboard/[slug]";
-import Manager from "@/pages/manager";
-import EngineerPage from "@/pages/engineer";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+
+// Admin
+import Dashboard from "@/pages/admin/dashboard";
+import Device from "@/pages/admin/dashboard/[slug]";
+import Manager from "@/pages/admin/manager";
+import EngineerPage from "@/pages/admin/engineer";
+
+// Manager
+import ManagerDashboardPage from "@/pages/manager/dashboard";
+import ManagerDeviceDetails from "@/pages/manager/dashboard/slug";
+import ManagerEngineerPage from "@/pages/manager/engineer";
+
+// Engineer
+import Engineer from "@/pages/engineer/index";
+import EngineerDeviceDetails from "@/pages/engineer/dashboard/slug";
 
 // Lazy load components for better performance
 const SignIn = lazy(() => import("../pages/auth/SignIn"));
 const SignUp = lazy(() => import("../pages/auth/SignUp"));
 
 export const AppRoutes = () => {
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   return (
     <Suspense>
@@ -26,7 +39,15 @@ export const AppRoutes = () => {
           path="/"
           element={
             isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
+              user?.role === "ADMIN" ? (
+                <Navigate to="/admin/dashboard" replace />
+              ) : user?.role === "MANAGER" ? (
+                <Navigate to="/manager/dashboard" replace />
+              ) : user?.role === "ENGINEER" ? (
+                <Navigate to="/engineer/dashboard" replace />
+              ) : (
+                <Navigate to="/sign-in" replace />
+              )
             ) : (
               <Navigate to="/sign-in" replace />
             )
@@ -37,7 +58,15 @@ export const AppRoutes = () => {
           path="/sign-in"
           element={
             isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
+              user?.role === "ADMIN" ? (
+                <Navigate to="/admin/dashboard" replace />
+              ) : user?.role === "MANAGER" ? (
+                <Navigate to="/manager/dashboard" replace />
+              ) : user?.role === "ENGINEER" ? (
+                <Navigate to="/engineer/dashboard" replace />
+              ) : (
+                <Navigate to="/sign-in" replace />
+              )
             ) : (
               <AuthLayout>
                 <SignIn />
@@ -49,7 +78,15 @@ export const AppRoutes = () => {
           path="/sign-up"
           element={
             isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
+              user?.role === "ADMIN" ? (
+                <Navigate to="/admin/dashboard" replace />
+              ) : user?.role === "MANAGER" ? (
+                <Navigate to="/manager/dashboard" replace />
+              ) : user?.role === "ENGINEER" ? (
+                <Navigate to="/engineer/dashboard" replace />
+              ) : (
+                <Navigate to="/sign-in" replace />
+              )
             ) : (
               <AuthLayout>
                 <SignUp />
@@ -64,8 +101,18 @@ export const AppRoutes = () => {
             <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "ENGINEER"]} />
           }
         >
+          {/* <Route
+            path="/settings"
+            element={
+              <DashboardLayout>
+                <div>Settings</div>
+                </DashboardLayout>
+            }
+          /> */}
+        </Route>
+        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
           <Route
-            path="/dashboard"
+            path="/admin/dashboard"
             element={
               <DashboardLayout>
                 <Dashboard />
@@ -73,30 +120,70 @@ export const AppRoutes = () => {
             }
           />
           <Route
-            path="/dashboard/:slug"
+            path="/admin/dashboard/:slug"
             element={
               <DashboardLayout>
                 <Device />
               </DashboardLayout>
             }
           />
-        </Route>
-        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
           <Route
-            path="/managers"
+            path="/admin/managers"
             element={
               <DashboardLayout>
                 <Manager />
               </DashboardLayout>
             }
           />
-        </Route>
-        <Route element={<ProtectedRoute allowedRoles={["ADMIN", "MANAGER"]} />}>
           <Route
-            path="/engineers"
+            path="/admin/engineers"
             element={
               <DashboardLayout>
                 <EngineerPage />
+              </DashboardLayout>
+            }
+          />
+        </Route>
+        <Route element={<ProtectedRoute allowedRoles={["MANAGER"]} />}>
+          <Route
+            path="/manager/dashboard"
+            element={
+              <DashboardLayout>
+                <ManagerDashboardPage />
+              </DashboardLayout>
+            }
+          />
+          <Route
+            path="/manager/dashboard/:slug"
+            element={
+              <DashboardLayout>
+                <ManagerDeviceDetails />
+              </DashboardLayout>
+            }
+          />
+          <Route
+            path="/manager/engineer"
+            element={
+              <DashboardLayout>
+                <ManagerEngineerPage />
+              </DashboardLayout>
+            }
+          />
+        </Route>
+        <Route element={<ProtectedRoute allowedRoles={["ENGINEER"]} />}>
+          <Route
+            path="/engineer/dashboard"
+            element={
+              <DashboardLayout>
+                <Engineer />
+              </DashboardLayout>
+            }
+          />
+          <Route
+            path="/engineer/dashboard/:slug"
+            element={
+              <DashboardLayout>
+                <EngineerDeviceDetails />
               </DashboardLayout>
             }
           />
