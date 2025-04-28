@@ -69,15 +69,9 @@ export default function Devices() {
 
   const handleDeviceClick = (device_id: number, id: number) => {
     console.log("Device ID clicked:", device_id);
-    // We should pass device_id to fetchDeviceData, not id
-    dispatch(fetchDeviceData(id))
-      .unwrap()
-      .then(() => {
-        navigate(`/admin/dashboard/${device_id}`);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch device data:", error);
-      });
+    // Directly navigate to the device details page
+    // The data will be fetched in the DeviceDetails component
+    navigate(`/admin/dashboard/${device_id}`, { state: { meterId: id } });
   };
 
   return (

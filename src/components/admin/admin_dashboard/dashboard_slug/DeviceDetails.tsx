@@ -2,18 +2,19 @@ import { Button } from "@/components/ui/button";
 import ReactSpeedometer, { Transition } from "react-d3-speedometer";
 import { Loader2Icon, Trash2Icon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteDevice, generateAlarmMeterReport, generateMeterReport } from "@/store/slices/admin/adminThunks";
+import { deleteDevice, generateAlarmMeterReport, generateMeterReport, fetchDeviceData } from "@/store/slices/admin/adminThunks";
 import { AppDispatch, RootState } from "@/store";
-import { useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { StatusIconGrid } from "@/components/common/StatusIcons";
 import { current } from "@reduxjs/toolkit";
 import { DeviceData } from "@/store/slices/admin/adminTypes";
 import { toast } from "sonner";
+import { X } from "lucide-react";
 
 // Reusable Header Stats component to show the meter UI
-function HeaderStats(deviceData: DeviceData) {
+function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
   console.log("Header Stats Data:", deviceData);
   console.log(deviceData?.power_percentage, "power percentage");
 
@@ -22,54 +23,129 @@ function HeaderStats(deviceData: DeviceData) {
       <div className="flex items-center justify-between overflow-x-auto">
         {/* First column */}
         <div className="flex flex-col">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-accent-color">{deviceData?.frequency_hz || 0} Hz</span>
-            <span className="text-chart-1">49.9 Hz</span>
+          <div className="flex items-center justify-between gap-8">
+            <span className="text-accent-color">{deviceData?.frequency_hz || 0} <span className="text-blue-500">Hz</span></span>
+            <span className="text-chart-1">49.9 <span className="text-blue-500">Hz</span></span>
           </div>
           <div className="h-1 w-full bg-background-dark mt-2 mb-4">
             <div className="h-full bg-accent-color w-1/3"></div>
           </div>
           <div className="flex justify-between">
-            <span className="text-accent-color">kW</span>
-            <span className="text-accent-color">{deviceData?.deviceData?.power_percentage || 0} %</span>
+            <span className="text-accent-color"><span className="text-blue-500">kW</span></span>
+            <span className="text-accent-color">{deviceData?.deviceData?.power_percentage || 0} <span className="text-blue-500">%</span></span>
           </div>
           <div className="flex justify-between">
-            <span className="text-accent-color">MW</span>
-            <span className="text-accent-color">{deviceData?.deviceData?.power_percentage || 0} %</span>
+            <span className="text-accent-color"><span className="text-blue-500">W</span></span>
+            <span className="text-accent-color">{deviceData?.deviceData?.power_percentage || 0} <span className="text-blue-500">%</span></span>
           </div>
         </div>
 
         {/* Second column */}
         <div className="flex mx-4">
+          {/* <div className="flex">
+            <span>Total</span>
+          </div> */}
           <div className="flex flex-col">
-            <span className="text-chart-3 text-xl font-bold">52.9 kW</span>
-            <span className="text-chart-3">56.5 kWh</span>
-            <span className="text-chart-3">19.8 kVAr</span>
-            <span className="text-chart-3">0.93 pf</span>
+            <span className="text-accent-color font-bold">Total</span>
+            <span className="  text-yellow-300">52.9 <span className="text-blue-500">kW</span></span>
+            <span className="text-yellow-300">56.5 <span className="text-blue-500">kWh</span></span>
+            <span className="text-yellow-300">19.8 <span className="text-blue-500">kVAr</span></span>
+            <span className="text-yellow-300">0.93 <span className="text-blue-500">pf</span></span>
+          </div>
+        </div>
+        <div className="flex mx-4">
+          {/* <div className="flex">
+            <span>Total</span>
+          </div> */}
+          <div className="flex flex-col">
+            <span className="text-accent-color font-bold">Energy Generator</span>
+            <span className="  text-yellow-300 ">414.4 <span className="text-blue-500">kWh</span></span>
+            <span className="text-yellow-300">4.21 <span className="text-blue-500">kWh</span></span>
+            <span className="text-yellow-300">452.0 <span className="text-blue-500">kVAr</span></span>
+            <span className="text-yellow-300">173.9<span className="text-blue-500">kVArh</span></span>
           </div>
         </div>
 
         {/* Third column */}
-        <div className="flex">
+        {/* <div className="flex">
           <div className="flex flex-col">
-            <span className="text-chart-3 text-xl font-bold">{deviceData?.deviceData?.phase_a_voltage_v} V Ph-1</span>
-            <span className="text-chart-3">{deviceData?.deviceData?.phase_a_current_a} Amp</span>
+            <span className=" text-xl font-bold">{deviceData?.deviceData?.phase_a_voltage_v} <span className="text-blue-500">V</span> Ph-1</span>
+            <span className="">{deviceData?.deviceData?.phase_a_current_a} <span className="text-blue-500">Amp</span></span>
+          </div>
+        </div> */}
+        {/* <div className="flex">
+          <div className="flex flex-col">
+            <span className=" text-xl font-bold">{deviceData?.deviceData?.phase_b_voltage_v} <span className="text-blue-500">V</span> Ph-2</span>
+            <span className="">{deviceData?.deviceData?.phase_b_current_a} <span className="text-blue-500">Amp</span></span>
           </div>
         </div>
         <div className="flex">
           <div className="flex flex-col">
-            <span className="text-chart-3 text-xl font-bold">{deviceData?.deviceData?.phase_b_voltage_v} V Ph-2</span>
-            <span className="text-chart-3">{deviceData?.deviceData?.phase_b_current_a} Amp</span>
+            <span className=" text-xl font-bold">{deviceData?.deviceData?.phase_c_voltage_v} <span className="text-blue-500">V</span> Ph-1</span>
+            <span className="">{deviceData?.deviceData?.phase_c_current_a} <span className="text-blue-500">Amp</span></span>
           </div>
-        </div>
-        <div className="flex">
-          <div className="flex flex-col">
-            <span className="text-chart-3 text-xl font-bold">{deviceData?.deviceData?.phase_c_voltage_v} V Ph-1</span>
-            <span className="text-chart-3">{deviceData?.deviceData?.phase_c_current_a} Amp</span>
-          </div>
-        </div>
+        </div> */}
       </div>
     </div>
+  );
+}
+
+// Create a reusable ManualModeHeader component
+function ManualModeHeader({
+  deviceData,
+  onDeleteDevice,
+  onGenerateReport,
+  isLoading,
+  showReportButton = false,
+  showDeleteButton = false,
+  customReportButton = null
+}: {
+  deviceData?: DeviceData;
+  onDeleteDevice?: () => void;
+  onGenerateReport?: () => void;
+  isLoading?: boolean;
+  showReportButton?: boolean;
+  showDeleteButton?: boolean;
+  customReportButton?: React.ReactNode;
+}) {
+  return (
+    <>
+      <div className="flex justify-between items-center">
+        <div className="flex items-center">
+          <h1 className="text-2xl font-bold text-accent-color">Manual Mode</h1>
+        </div>
+        <div className="flex gap-2">
+          {showReportButton && onGenerateReport && (
+            <Button
+              variant="outline"
+              className="text-accent-color hover:text-accent-hover bg-transparent hover:bg-surface-dark border-accent-color"
+              onClick={onGenerateReport}
+              disabled={isLoading}
+            >
+              Report
+            </Button>
+          )}
+          {customReportButton}
+          {showDeleteButton && onDeleteDevice && (
+            <Button
+              variant="outline"
+              className="text-destructive hover:text-destructive/90 bg-transparent hover:bg-surface-dark border-accent-color"
+              onClick={onDeleteDevice}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2Icon className="size-6 animate-spin" />
+              ) : (
+                <Trash2Icon className="size-6" />
+              )}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Header stats */}
+      <HeaderStats deviceData={deviceData} />
+    </>
   );
 }
 
@@ -78,10 +154,30 @@ export default function DeviceDetails() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const isLoading = useSelector((state: RootState) => state.admin.isLoading);
+  const location = useLocation();
 
   const [activeTab, setActiveTab] = useState<"engine" | "generator" | "alarms">("engine");
   const { currentDeviceData } = useSelector((state: RootState) => state.admin);
   console.log("Current Device Data:", currentDeviceData);
+
+  // Fetch device data when component mounts
+  useEffect(() => {
+    if (slug) {
+      // Extract the device ID from the slug if needed
+      const deviceId = parseInt(slug.includes('/') ? slug.split('/').pop() || slug : slug);
+
+      // Get the meterId from location state if available
+      const meterId = location.state?.meterId || deviceId;
+
+      console.log("Fetching device data for ID:", meterId);
+      dispatch(fetchDeviceData(meterId))
+        .unwrap()
+        .catch((error) => {
+          console.error("Failed to fetch device data:", error);
+          toast.error("Failed to load device data");
+        });
+    }
+  }, [slug, dispatch, location.state]);
 
   const handleDeleteDevice = () => {
     if (slug) {
@@ -124,6 +220,7 @@ export default function DeviceDetails() {
 
   return (
     <div className="flex flex-col relative h-[calc(100vh-3rem)] bg-background-dark text-text-primary">
+
       <div className="h-12 absolute bottom-0 right-0 left-0 flex bg-surface-dark rounded-t-md justify-center items-center px-2 border border-accent-color">
         <Button
           variant={activeTab === "engine" ? "default" : "secondary"}
@@ -172,8 +269,22 @@ export default function DeviceDetails() {
             onGenerateReport={handleGenerateReport}
           />
         )}
-        {activeTab === "generator" && <GeneratorTab deviceData={currentDeviceData}/>}
-        {activeTab === "alarms" && <AlarmsTab deviceData={currentDeviceData} />}
+        {activeTab === "generator" && (
+          <GeneratorTab
+            deviceData={currentDeviceData}
+            onDeleteDevice={handleDeleteDevice}
+            isLoading={isLoading}
+            onGenerateReport={handleGenerateReport}
+          />
+        )}
+        {activeTab === "alarms" && (
+          <AlarmsTab
+            deviceData={currentDeviceData}
+            onDeleteDevice={handleDeleteDevice}
+            isLoading={isLoading}
+            onGenerateReport={handleGenerateReport}
+          />
+        )}
       </div>
     </div>
   );
@@ -190,46 +301,22 @@ interface TabProps {
 function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: TabProps) {
   return (
     <div className="flex flex-col gap-6 py-4">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-accent-color">Manual Mode</h1>
-        </div>
-        {onGenerateReport && (
-          <Button
-            variant="outline"
-            className="text-accent-color hover:text-accent-hover bg-transparent hover:bg-surface-dark border-accent-color"
-            onClick={onGenerateReport}
-            disabled={isLoading}
-          >
-            Report
-          </Button>
-        )}
-        {onDeleteDevice && (
-          <Button
-            variant="outline"
-            className="text-destructive hover:text-destructive/90 bg-transparent hover:bg-surface-dark border-accent-color"
-            onClick={onDeleteDevice}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Loader2Icon className="size-6 animate-spin" />
-            ) : (
-              <Trash2Icon className="size-6" />
-            )}
-          </Button>
-        )}
-      </div>
-
-      {/* Header stats */}
-      <HeaderStats deviceData={deviceData} />
+      <ManualModeHeader
+        deviceData={deviceData}
+        onDeleteDevice={onDeleteDevice}
+        onGenerateReport={onGenerateReport}
+        isLoading={isLoading}
+        showReportButton={true}
+        showDeleteButton={true}
+      />
 
       {/* Control Icons - Replacing with StatusIconGrid */}
       <StatusIconGrid />
 
       {/* Main gauges */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-col md:flex-row gap-4">
         {/* RPM Gauge */}
-        <div className="md:col-span-1 rounded-lg p-2 flex flex-col items-center shadow-md">
+        <div className="rounded-lg p-2 flex flex-col items-center shadow-md">
           <div className="w-full h-full">
             <ReactSpeedometer
               width={window.innerWidth < 768 ? 150 : 280}
@@ -266,28 +353,22 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
                 })}
             />
           </div>
-          <span className="text-chart-3 text-xl font-bold">{deviceData?.rpm} RPM</span>
-          <div className="mt-2 bg-background-dark border border-text-secondary p-1 px-2 rounded">
-            <span className="text-text-primary text-xs">{deviceData?.engine_hours} hrs</span>
-          </div>
+          <span className="text-xl font-bold">{deviceData?.rpm} <span className="text-blue-500">RPM</span></span>
+
           <div className="mt-3 flex flex-col text-xs">
             <div className="flex justify-between w-full">
-              <span className="text-text-secondary">Engine Starts</span>
-              <span className="text-text-primary">{deviceData?.engine_hours}</span>
-            </div>
-            <div className="flex justify-between w-full">
               <span className="text-text-secondary">Fuel Consumption</span>
-              <span className="text-text-primary">{deviceData?.fuel_rate_lph} L/hr</span>
+              <span className="text-text-primary">{deviceData?.fuel_rate_lph} <span className="text-blue-500">L/hr</span></span>
             </div>
             <div className="flex justify-between w-full">
               <span className="text-text-secondary">Fuel Used</span>
-              <span className="text-text-primary">{deviceData?.fuel_level_percent} %</span>
+              <span className="text-text-primary">{deviceData?.fuel_level_percent} <span className="text-blue-500">%</span></span>
             </div>
           </div>
         </div>
 
         {/* Four gauge cluster */}
-        <div className="md:col-span-4 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {/* Oil Pressure Gauge */}
           <div className="bg-surface-dark rounded-lg p-2 flex flex-col justify-center items-center shadow-md">
             <div className="w-full flex justify-center">
@@ -306,7 +387,7 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
                 textColor="#FFFFFF"
               />
             </div>
-            <span className="text-text-primary text-sm">{deviceData?.oil_pressure_kpa} kPA</span>
+            <span className="text-text-primary text-sm">{deviceData?.oil_pressure_kpa} <span className="text-blue-500">kPA</span></span>
             <span className="text-text-secondary text-xs">Oil Press</span>
           </div>
 
@@ -328,7 +409,7 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
                 textColor="#FFFFFF"
               />
             </div>
-            <span className="text-text-primary text-sm">{deviceData?.coolant_temp_c} °C</span>
+            <span className="text-text-primary text-sm">{deviceData?.coolant_temp_c} <span className="text-blue-500">°C</span></span>
             <span className="text-text-secondary text-xs">Coolant Temp</span>
           </div>
 
@@ -350,7 +431,7 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
                 textColor="#FFFFFF"
               />
             </div>
-            <span className="text-text-primary text-sm">{deviceData?.battery_voltage_v} VDC</span>
+            <span className="text-text-primary text-sm">{deviceData?.battery_voltage_v} <span className="text-blue-500">VDC</span></span>
             <span className="text-text-secondary text-xs">Battery</span>
           </div>
 
@@ -372,7 +453,7 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
                 textColor="#FFFFFF"
               />
             </div>
-            <span className="text-text-primary text-sm">27.7 VDC</span>
+            <span className="text-text-primary text-sm">27.7 <span className="text-blue-500">VDC</span></span>
             <span className="text-text-secondary text-xs">Charge</span>
           </div>
         </div>
@@ -381,20 +462,17 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
   );
 }
 
-function GeneratorTab(deviceData: DeviceData) {
+function GeneratorTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport }: TabProps) {
   return (
     <div className="flex flex-col gap-6 py-4">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-accent-color">Manual Mode</h1>
-        </div>
-      </div>
-
-      {/* Header stats */}
-      <HeaderStats deviceData= {deviceData}/>
-
-      {/* Control Icons */}
-      {/* <StatusIconGrid /> */}
+      <ManualModeHeader
+        deviceData={deviceData}
+        onDeleteDevice={onDeleteDevice}
+        onGenerateReport={onGenerateReport}
+        isLoading={isLoading}
+        showReportButton={true}
+        showDeleteButton={true}
+      />
 
       {/* Voltage Output */}
       <div className="bg-surface-dark p-4 rounded-lg border border-text-secondary shadow-md">
@@ -414,7 +492,6 @@ function GeneratorTab(deviceData: DeviceData) {
               width={120}
               height={120}
             />
-            <span className="text-text-primary mt-2">415 V (L1)</span>
           </div>
           <div className="flex flex-col items-center">
             <ReactSpeedometer
@@ -430,7 +507,7 @@ function GeneratorTab(deviceData: DeviceData) {
               width={120}
               height={120}
             />
-            <span className="text-text-primary mt-2">412 V (L2)</span>
+
           </div>
           <div className="flex flex-col items-center">
             <ReactSpeedometer
@@ -446,7 +523,7 @@ function GeneratorTab(deviceData: DeviceData) {
               width={120}
               height={120}
             />
-            <span className="text-text-primary mt-2">418 V (L3)</span>
+
           </div>
           <div className="flex flex-col items-center">
             <ReactSpeedometer
@@ -462,7 +539,75 @@ function GeneratorTab(deviceData: DeviceData) {
               width={120}
               height={120}
             />
-            <span className="text-text-primary mt-2">418 V (L3)</span>
+
+          </div>
+
+        </div>
+        <div className="grid grid-cols-1 gap-2 justify-center mt-4 ml-12">
+          <div className="flex flex-row items-center">
+            <div className="w-full flex  flex-col justify-center">
+              <span className="text-blue-500">Volts</span>
+
+              <span className="text-text-primary mt-2">L1-L2 <span className="">415</span> </span>
+              <span className="text-text-primary mt-2">L2-L3 <span className="">416</span> </span>
+              <span className="text-text-primary mt-2">L3-L1 <span className="">415</span> </span>
+
+
+            </div>
+            <div className="w-full flex  flex-col justify-center">
+              <span className="text-blue-500 mt-2">Volts</span>
+
+              <span className="text-text-primary mt-2">L1 <span className="">239</span> </span>
+              <span className="text-text-primary mt-2">L2 <span className="">240</span> </span>
+              <span className="text-text-primary mt-2">L3 <span className="">240</span> </span>
+
+            </div>
+
+            <div className="w-full flex  flex-col justify-center">
+              <span className="text-blue-500 mt-2">Amps</span>
+
+              <span className="text-text-primary mt-2"> <span className="">124</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">125</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">122</span> </span>
+
+            </div>
+
+            <div className="w-full flex  flex-col justify-center">
+              <span className="text-blue-500 mt-2">kW</span>
+
+              <span className="text-text-primary mt-2"><span className="">23.4</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">23.9</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">23.5</span> </span>
+
+            </div>
+
+            <div className="w-full flex  flex-col justify-center">
+              <span className="text-blue-500 mt-2">kVA</span>
+
+              <span className="text-text-primary mt-2"><span className="">29.9</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">29.9</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">29.3</span> </span>
+
+            </div>
+            <div className="w-full flex  flex-col justify-center">
+              <span className="text-blue-500 mt-2">kVAr</span>
+
+              <span className="text-text-primary mt-2"><span className="">18.6</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">18.6</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">18.3</span> </span>
+
+            </div>
+            <div className="w-full flex  flex-col justify-center">
+              <span className="text-blue-500 mt-2">P!</span>
+
+              <span className="text-text-primary mt-2"><span className="">0.78 Lag</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">0.79 Lag</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">0.80 Lag</span> </span>
+
+            </div>
+
+
+
           </div>
         </div>
       </div>
@@ -470,10 +615,9 @@ function GeneratorTab(deviceData: DeviceData) {
   );
 }
 
-function AlarmsTab({ deviceData }: TabProps) {
+function AlarmsTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport }: TabProps) {
   console.log("Alarms Tab Data:", deviceData);
   const dispatch = useDispatch<AppDispatch>();
-  const isLoading = useSelector((state: RootState) => state.admin.isLoading);
   const { slug } = useParams();
 
   const alarms = [
@@ -518,13 +662,12 @@ function AlarmsTab({ deviceData }: TabProps) {
     console.log("Generating alarm report...");
     console.log("Device Data:", deviceData);
     const deviceId = slug.includes('/') ? slug.split('/').pop() : slug;
-      console.log("Extracted device ID:", deviceId);
-
+    console.log("Extracted device ID:", deviceId);
 
     if (deviceData) {
       dispatch(
         generateAlarmMeterReport({
-          meter_id:deviceId || slug,
+          meter_id: deviceId || slug,
           time_range: "last_24",
         })
       )
@@ -542,14 +685,24 @@ function AlarmsTab({ deviceData }: TabProps) {
 
   return (
     <div className="flex flex-col gap-6 py-4">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-accent-color">Manual Mode</h1>
-        </div>
-      </div>
-
-      {/* Header stats */}
-      <HeaderStats deviceData={deviceData} />
+      <ManualModeHeader
+        deviceData={deviceData}
+        onDeleteDevice={onDeleteDevice}
+        onGenerateReport={onGenerateReport}
+        isLoading={isLoading}
+        showReportButton={true}
+        showDeleteButton={true}
+        customReportButton={
+          <Button
+            variant="outline"
+            className="text-accent-color hover:text-accent-hover bg-transparent hover:bg-surface-dark border-accent-color"
+            onClick={() => handleGenerateAlarmReport()}
+            disabled={isLoading}
+          >
+            Alarm Report
+          </Button>
+        }
+      />
 
       {/* Control Icons */}
       {/* <StatusIconGrid /> */}
@@ -571,21 +724,19 @@ function AlarmsTab({ deviceData }: TabProps) {
             <div className="col-span-1 text-text-secondary">{alarm.id}</div>
             <div className="col-span-3 text-text-primary">{alarm.timestamp}</div>
             <div
-              className={`col-span-2 font-medium ${
-                alarm.type === "Critical"
+              className={`col-span-2 font-medium ${alarm.type === "Critical"
                   ? "text-destructive"
                   : alarm.type === "Warning"
-                  ? "text-chart-3"
-                  : "text-accent-color"
-              }`}
+                    ? "text-chart-3"
+                    : "text-accent-color"
+                }`}
             >
               {alarm.type}
             </div>
             <div className="col-span-4 text-text-primary">{alarm.message}</div>
             <div
-              className={`col-span-2 font-medium ${
-                alarm.status === "Active" ? "text-destructive" : "text-chart-1"
-              }`}
+              className={`col-span-2 font-medium ${alarm.status === "Active" ? "text-destructive" : "text-chart-1"
+                }`}
             >
               {alarm.status}
             </div>
@@ -629,20 +780,6 @@ function AlarmsTab({ deviceData }: TabProps) {
           <div className="space-y-4">
             <Button className="w-full bg-destructive hover:bg-destructive/90">
               Reset All Alarms
-            </Button>
-            <Button
-              className="w-full bg-accent-color hover:bg-accent-hover"
-              onClick={() => handleGenerateAlarmReport()}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                  Generating Report...
-                </>
-              ) : (
-                "Generate Alarm Report"
-              )}
             </Button>
             <Button className="w-full bg-chart-1 hover:bg-chart-1/90">
               Configure Alarm Settings
