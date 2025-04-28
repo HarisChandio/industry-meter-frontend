@@ -15,6 +15,8 @@ import {
   LogOut,
   HardHat,
   Gauge,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 interface NavItem {
@@ -83,6 +85,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Define navigation items with dynamic main section
   const navItems: {
@@ -133,6 +136,11 @@ export default function Sidebar() {
   // Toggle sidebar on mobile
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
+  };
+
+  // Toggle desktop sidebar collapse
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
   };
 
   // Extract this to a component to avoid repetition
@@ -198,53 +206,98 @@ export default function Sidebar() {
             ? collapsed
               ? "hidden"
               : "fixed inset-0 z-40"
-            : "w-64 min-h-screen relative"
+            : sidebarCollapsed
+              ? "w-20 min-h-screen relative"
+              : "w-64 min-h-screen relative"
         } transition-all duration-300 ease-in-out`}
       >
         <div
           className={`${
             isMobile && !collapsed ? "w-64" : "w-full"
-          } h-full bg-gray-800 border-r border-gray-700 flex flex-col shadow-xl`}
+          } h-full bg-gray-800 border-r border-gray-700 flex flex-col shadow-xl relative`}
         >
+          {/* Desktop sidebar toggle button */}
+          {!isMobile && (
+            <button
+              onClick={toggleSidebarCollapse}
+              className="absolute top-4 -right-3 z-50 p-1.5 rounded-full bg-gray-700 text-white shadow-md border border-gray-600"
+            >
+              {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            </button>
+          )}
+
           <div className="p-4 border-b border-gray-700">
             <div className="flex items-center justify-center">
               <Gauge className="mr-2 text-accent-color" size={35} />
-              <h1 className="text-xl font-bold">RozWelControl</h1>
+              {!sidebarCollapsed && <h1 className="text-xl font-bold">RozWelControl</h1>}
             </div>
           </div>
 
           <div className="py-6 px-2 flex-1 overflow-y-auto">
-            <NavLinks items={navItems.main} title="Main" />
+            {sidebarCollapsed ? (
+              <div className="flex flex-col items-center space-y-6 py-4">
+                {getFilteredItems(navItems.main).map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`p-2 rounded-md transition-colors ${
+                        isActive
+                          ? "bg-accent-color text-white"
+                          : "text-gray-300 hover:bg-gray-700/70"
+                      }`}
+                      title={item.name}
+                    >
+                      {item.icon}
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <NavLinks items={navItems.main} title="Main" />
+            )}
             {/* <NavLinks items={navItems.settings} title="Settings" /> */}
           </div>
 
           <div className="p-4 border-t border-gray-700">
             <div className="flex items-center gap-3 justify-between">
-              <div className="flex items-center">
-                <div
-                  className={`h-9 w-9 bg-green-500 rounded-md flex items-center justify-center truncate text-white font-semibold shadow-md`}
+              {!sidebarCollapsed ? (
+                <>
+                  <div className="flex items-center">
+                    <div
+                      className={`h-9 w-9 bg-green-500 rounded-md flex items-center justify-center truncate text-white font-semibold shadow-md`}
+                    >
+                      {user?.username?.[0]?.toUpperCase() || "U"}
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-white">
+                        {user?.username || "User"}
+                      </p>
+                      <span className="text-xs text-gray-400 flex items-center">
+                        <span
+                          className={`h-2 w-2 rounded-full bg-green-500 mr-1.5`}
+                        ></span>
+                        {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 text-white hover:text-red-600"
+                  >
+                    <LogOut className="size-5" />
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center justify-center w-full text-white hover:text-red-600"
+                  title="Logout"
                 >
-                  {user?.username?.[0]?.toUpperCase() || "U"}
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-white">
-                    {user?.username || "User"}
-                  </p>
-                  <span className="text-xs text-gray-400 flex items-center">
-                    <span
-                      className={`h-2 w-2 rounded-full bg-green-500 mr-1.5`}
-                    ></span>
-                    {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 text-white hover:text-red-600"
-              >
-                <LogOut className="size-5" />
-                {/* <span>Logout</span> */}
-              </button>
+                  <LogOut className="size-5" />
+                </button>
+              )}
             </div>
           </div>
         </div>
