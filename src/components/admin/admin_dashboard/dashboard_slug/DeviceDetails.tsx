@@ -8,10 +8,8 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { StatusIconGrid } from "@/components/common/StatusIcons";
-import { current } from "@reduxjs/toolkit";
 import { DeviceData } from "@/store/slices/admin/adminTypes";
 import { toast } from "sonner";
-import { X } from "lucide-react";
 
 // Reusable Header Stats component to show the meter UI
 function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {

@@ -28,13 +28,7 @@ export const StatusIcon = ({ iconType }: IconType) => {
         );
       case "autoRegeneration":
         return (
-          <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-            <path d="M12 7V5c0-1.7-1.3-3-3-3H5C3.3 2 2 3.3 2 5v4c0 1.7 1.3 3 3 3h4c1.7 0 3-1.3 3-3V7zm-2 2c0 .6-.4 1-1 1H5c-.6 0-1-.4-1-1V5c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v4z" />
-            <path d="M19 2h-4c-1.7 0-3 1.3-3 3v2h2V5c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v4c0 .6-.4 1-1 1h-4c-.6 0-1-.4-1-1V7h-2v2c0 1.7 1.3 3 3 3h4c1.7 0 3-1.3 3-3V5c0-1.7-1.3-3-3-3z" />
-            <path d="M5 12H3v2c0 1.7 1.3 3 3 3h4c1.7 0 3-1.3 3-3v-2h-2v2c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-2z" />
-            <path d="M19 17h-4c-.6 0-1-.4-1-1v-2h-2v2c0 1.7 1.3 3 3 3h4c1.7 0 3-1.3 3-3v-2h-2v2c0 .6-.4 1-1 1z" />
-            <path d="M5 19c-1.7 0-3 1.3-3 3v.5h2V22c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v.5h2V22c0-1.7-1.3-3-3-3H5z" />
-          </svg>
+          <img src="/rabbit.png" alt="Auto Regeneration" className="w-5 h-5 object-contain" />
         );
       case "defLevelLow":
         return (
@@ -75,30 +69,19 @@ export const StatusIcon = ({ iconType }: IconType) => {
         );
       case "fuelLevel":
         return (
-          <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-            <path d="M3 4v16h18V4H3zm16 14H5V6h14v12z" />
-            <path d="M17 8H7v8h10V8zm-2 6H9v-4h6v4z" />
-          </svg>
+          <img src="/fuel1.png" alt="Fuel Level" className="w-5 h-5 object-contain" />
         );
       case "batteryVoltage":
         return (
-          <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-            <path d="M16 4h-2V2h-4v2H8v4h12V4h-4z" />
-            <path d="M16.5 10h-9C6.67 10 6 10.67 6 11.5v9c0 .83.67 1.5 1.5 1.5h9c.83 0 1.5-.67 1.5-1.5v-9c0-.83-.67-1.5-1.5-1.5zm-2 8.5h-5v-2h5v2zm0-4h-5v-2h5v2z" />
-          </svg>
+          <img src="/battery.png" alt="Battery Voltage" className="w-5 h-5 object-contain" />
         );
       case "coolantTemp":
         return (
-          <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-            <path d="M15 13V5c0-1.66-1.34-3-3-3S9 3.34 9 5v8c-1.21.91-2 2.37-2 4 0 2.76 2.24 5 5 5s5-2.24 5-5c0-1.63-.79-3.09-2-4zm-4-2V5c0-.55.45-1 1-1s1 .45 1 1v6.17c.5.17.84.5 1 .83.16.33.5.67 1 .83V13c-1.21-.91-2.63-.91-4 0z" />
-          </svg>
+          <img src="/2.png" alt="Coolant Temperature" className="w-5 h-5 object-contain" />
         );
       case "ecuLamp":
         return (
-          <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-            <path d="M6 20v-8H4v8h2zm4-8h-2v8h2v-8zm4 0h-2v8h2v-8zm4 0h-2v8h2v-8z" />
-            <path d="M18 2H6v7.8l6-4.6 6 4.6V2z" />
-          </svg>
+          <img src="/key.png" alt="ECU Lamp" className="w-5 h-5 object-contain" />
         );
       case "waterInFuel":
         return (
@@ -133,7 +116,7 @@ export const StatusIcon = ({ iconType }: IconType) => {
 
   return (
     <HoverName title={getTitleText()}>
-      <div className="w-10 h-10 flex items-center justify-center rounded-sm border border-gray-400 bg-black/30 text-gray-300">
+      <div className="w-10 h-10 flex items-center justify-center text-gray-300">
         {getIconContent()}
       </div>
     </HoverName>
