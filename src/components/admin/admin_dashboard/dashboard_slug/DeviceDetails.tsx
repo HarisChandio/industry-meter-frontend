@@ -22,20 +22,21 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
         {/* First column */}
         <div className="flex flex-col">
           <div className="flex items-center justify-between gap-8">
-            <span className="text-accent-color">{deviceData?.frequency_hz || 0} <span className="text-blue-500">Hz</span></span>
-            <span className="text-chart-1">49.9 <span className="text-blue-500">Hz</span></span>
+            {/* <span className="text-accent-color">{deviceData?.frequency_hz || 0} <span className="text-blue-500">Hz</span></span> */}
+            <span className="text-chart-1">{deviceData?.frequency_hz} <span className="text-blue-500">Hz</span></span>
           </div>
           <div className="h-1 w-full bg-background-dark mt-2 mb-4">
             <div className="h-full bg-accent-color w-1/3"></div>
           </div>
           <div className="flex justify-between">
-            <span className="text-accent-color"><span className="text-blue-500">kW</span></span>
-            <span className="text-accent-color">{deviceData?.deviceData?.power_percentage || 0} <span className="text-blue-500">%</span></span>
-          </div>
-          <div className="flex justify-between">
             <span className="text-accent-color"><span className="text-blue-500">W</span></span>
             <span className="text-accent-color">{deviceData?.deviceData?.power_percentage || 0} <span className="text-blue-500">%</span></span>
           </div>
+          <div className="flex justify-between">
+            <span className="text-accent-color"><span className="text-blue-500">kW</span></span>
+            <span className="text-accent-color">{deviceData?.deviceData?.power_percentage/1000 || 0} <span className="text-blue-500">%</span></span>
+          </div>
+
         </div>
 
         {/* Second column */}
@@ -57,7 +58,7 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
           </div> */}
           <div className="flex flex-col">
             <span className="text-accent-color font-bold">Energy Generator</span>
-            <span className="  text-yellow-300 ">414.4 <span className="text-blue-500">kWh</span></span>
+            <span className="  text-yellow-300 ">414.4 <span className="text-blue-500">kW</span></span>
             <span className="text-yellow-300">4.21 <span className="text-blue-500">kWh</span></span>
             <span className="text-yellow-300">452.0 <span className="text-blue-500">kVAr</span></span>
             <span className="text-yellow-300">173.9<span className="text-blue-500">kVArh</span></span>
@@ -315,7 +316,7 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
       <div className="flex flex-col md:flex-row gap-4">
         {/* RPM Gauge */}
         <div className="rounded-lg p-2 flex flex-col items-center shadow-md">
-          <div className="w-full h-full">
+          <div className="w-full h-full relative">
             <ReactSpeedometer
               width={window.innerWidth < 768 ? 150 : 280}
               height={150}
@@ -350,15 +351,20 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
                   };
                 })}
             />
+            {/* Engine hours display */}
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 px-2 py-1 rounded text-yellow-300 text-sm border border-gray-600">
+              <span>{deviceData?.engine_hours}</span>
+              <span className="text-xs ml-1 text-gray-300">hrs</span>
+            </div>
           </div>
           <span className="text-xl font-bold">{deviceData?.rpm} <span className="text-blue-500">RPM</span></span>
 
           <div className="mt-3 flex flex-col text-xs">
-            <div className="flex justify-between w-full">
+            {/* <div className="flex justify-between w-full">
               <span className="text-text-secondary">Fuel Consumption</span>
               <span className="text-text-primary">{deviceData?.fuel_rate_lph} <span className="text-blue-500">L/hr</span></span>
-            </div>
-            <div className="flex justify-between w-full">
+            </div> */}
+            <div className="flex justify-between w-full gap-2">
               <span className="text-text-secondary">Fuel Used</span>
               <span className="text-text-primary">{deviceData?.fuel_level_percent} <span className="text-blue-500">%</span></span>
             </div>
@@ -386,7 +392,7 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
               />
             </div>
             <span className="text-text-primary text-sm">{deviceData?.oil_pressure_kpa} <span className="text-blue-500">kPA</span></span>
-            <span className="text-text-secondary text-xs">Oil Press</span>
+            <span className="text-text-secondary text-xs">Oil Pressure</span>
           </div>
 
           {/* Coolant Temp Gauge */}
@@ -479,7 +485,7 @@ function GeneratorTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport 
           <div className="flex flex-col items-center">
             <ReactSpeedometer
               maxValue={500}
-              value={415}
+              value={deviceData?.avg_ll_volt}
               needleColor="#BB86FC"
               startColor="#2E2E2E"
               endColor="#2E2E2E"
@@ -494,23 +500,7 @@ function GeneratorTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport 
           <div className="flex flex-col items-center">
             <ReactSpeedometer
               maxValue={500}
-              value={412}
-              needleColor="#BB86FC"
-              startColor="#2E2E2E"
-              endColor="#2E2E2E"
-              segments={5}
-              ringWidth={15}
-              needleHeightRatio={0.7}
-              currentValueText=""
-              width={120}
-              height={120}
-            />
-
-          </div>
-          <div className="flex flex-col items-center">
-            <ReactSpeedometer
-              maxValue={500}
-              value={418}
+              value={deviceData?.avg_ln_volt}
               needleColor="#BB86FC"
               startColor="#2E2E2E"
               endColor="#2E2E2E"
@@ -526,7 +516,23 @@ function GeneratorTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport 
           <div className="flex flex-col items-center">
             <ReactSpeedometer
               maxValue={500}
-              value={418}
+              value={deviceData?.avg_current}
+              needleColor="#BB86FC"
+              startColor="#2E2E2E"
+              endColor="#2E2E2E"
+              segments={5}
+              ringWidth={15}
+              needleHeightRatio={0.7}
+              currentValueText=""
+              width={120}
+              height={120}
+            />
+
+          </div>
+          <div className="flex flex-col items-center">
+            <ReactSpeedometer
+              maxValue={500}
+              value={deviceData?.frequency_hz}
               needleColor="#BB86FC"
               startColor="#2E2E2E"
               endColor="#2E2E2E"
@@ -544,63 +550,73 @@ function GeneratorTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport 
         <div className="grid grid-cols-1 gap-2 justify-center mt-4 ml-12">
           <div className="flex flex-row items-center">
             <div className="w-full flex  flex-col justify-center">
-              <span className="text-blue-500">Volts</span>
+              <span className="text-blue-500">Phase</span>
 
-              <span className="text-text-primary mt-2">L1-L2 <span className="">415</span> </span>
-              <span className="text-text-primary mt-2">L2-L3 <span className="">416</span> </span>
-              <span className="text-text-primary mt-2">L3-L1 <span className="">415</span> </span>
+              <span className="text-text-primary mt-2">L1-L2  </span>
+              <span className="text-text-primary mt-2">L2-L3 </span>
+              <span className="text-text-primary mt-2">L3-L1  </span>
 
 
             </div>
+
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500 mt-2">Volts</span>
 
-              <span className="text-text-primary mt-2">L1 <span className="">239</span> </span>
-              <span className="text-text-primary mt-2">L2 <span className="">240</span> </span>
-              <span className="text-text-primary mt-2">L3 <span className="">240</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_a_voltage_ll}</span>  </span>
+              <span className="text-text-primary mt-2"><span className="">{deviceData?.phase_b_voltage_ll}</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_c_voltage_ll}</span> </span>
+
+            </div>
+            <div className="w-full flex  flex-col justify-center">
+              <span className="text-blue-500">L-N</span>
+
+              <span className="text-text-primary mt-2">L1 <span className="">{deviceData?.phase_a_voltage_v}</span>   </span>
+              <span className="text-text-primary mt-2">L2  <span className="">{deviceData?.phase_b_voltage_v}</span>  </span>
+              <span className="text-text-primary mt-2">L3  <span className="">{deviceData?.phase_c_voltage_v}</span>   </span>
+
 
             </div>
 
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500 mt-2">Amps</span>
 
-              <span className="text-text-primary mt-2"> <span className="">124</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">125</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">122</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_a_current_a}</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_b_current_a}</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_c_current_a}</span> </span>
 
             </div>
 
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500 mt-2">kW</span>
 
-              <span className="text-text-primary mt-2"><span className="">23.4</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">23.9</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">23.5</span> </span>
+              <span className="text-text-primary mt-2"><span className="">{deviceData?.phase_a_real_power}</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_b_real_power}</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_c_real_power}</span> </span>
 
             </div>
 
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500 mt-2">kVA</span>
 
-              <span className="text-text-primary mt-2"><span className="">29.9</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">29.9</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">29.3</span> </span>
+              <span className="text-text-primary mt-2"><span className="">{deviceData?.phase_a_apparent_power}</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_b_apparent_power}</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_c_apparent_power}</span> </span>
 
             </div>
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500 mt-2">kVAr</span>
 
-              <span className="text-text-primary mt-2"><span className="">18.6</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">18.6</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">18.3</span> </span>
+              <span className="text-text-primary mt-2"><span className="">{deviceData?.phase_a_reactive_power}</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_b_reactive_power}</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_c_reactive_power}</span> </span>
 
             </div>
             <div className="w-full flex  flex-col justify-center">
-              <span className="text-blue-500 mt-2">P!</span>
+              <span className="text-blue-500 mt-2">P</span>
 
-              <span className="text-text-primary mt-2"><span className="">0.78 Lag</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">0.79 Lag</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">0.80 Lag</span> </span>
+              <span className="text-text-primary mt-2"><span className="">0 Lag</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">0 Lag</span> </span>
+              <span className="text-text-primary mt-2"> <span className="">0 Lag</span> </span>
 
             </div>
 
