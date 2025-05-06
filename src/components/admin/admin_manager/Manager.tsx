@@ -4,10 +4,11 @@ import { fetchManagers } from "@/store/slices/admin/adminThunks";
 import { RootState, AppDispatch } from "@/store";
 import { Manager as ManagerType } from "@/store/slices/admin/adminTypes";
 import ManagerDetail from "./ManagerDetail";
-import { SearchIcon } from "lucide-react";
+import { Loader2Icon, SearchIcon } from "lucide-react";
 
 export default function Manager() {
   const dispatch = useDispatch<AppDispatch>();
+  const [isLoading, setIsLoading] = useState(false);
   const { managers, error } = useSelector(
     (state: RootState) => state.admin
   );
@@ -18,7 +19,12 @@ export default function Manager() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    dispatch(fetchManagers());
+    setIsLoading(true);
+    dispatch(fetchManagers())
+      .unwrap()
+      .then(() => {
+        setIsLoading(false);
+      });
   }, [dispatch]);
 
   const handleRowClick = (manager: ManagerType) => {
@@ -59,8 +65,13 @@ export default function Manager() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg shadow">
-        <table className="min-w-full bg-gray-800 border border-gray-700">
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2Icon className="size-20 text-(--accent-color) animate-spin" />
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-lg shadow">
+          <table className="min-w-full bg-gray-800 border border-gray-700">
           <thead>
             <tr className="bg-gray-700">
               <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300 font-semibold">
@@ -101,7 +112,8 @@ export default function Manager() {
             )}
           </tbody>
         </table>
-      </div>
+        </div>
+      )}
 
       <ManagerDetail
         selectedManager={selectedManager}

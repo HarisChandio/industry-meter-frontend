@@ -210,10 +210,10 @@ const adminSlice = createSlice({
         })
 
         builder.addCase(generateAlarmMeterReport.pending
-, (state) => {
-            state.isLoading = true;
-            state.error = null;
-        });
+            , (state) => {
+                state.isLoading = true;
+                state.error = null;
+            });
         builder.addCase(generateAlarmMeterReport.fulfilled, (state, action) => {
             state.reportData = action.payload;
             state.isLoading = false;

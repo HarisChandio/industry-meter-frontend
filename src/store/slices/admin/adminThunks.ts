@@ -202,7 +202,7 @@ export const fetchDeviceData = createAsyncThunk(
                 return rejectWithValue('Authentication token not found');
             }
 
-            const response = await apiClient.get(`${base_url}/meter-data/${device_id}`);
+            const response = await apiClient.get(`${base_url}/meter-data/${device_id}/`);
 
             // Extract the device data from the response
             if (response.data && response.data.details && response.data.details.data) {

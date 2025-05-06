@@ -2,7 +2,12 @@ import { Button } from "@/components/ui/button";
 import ReactSpeedometer, { Transition } from "react-d3-speedometer";
 import { Loader2Icon, Trash2Icon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteDevice, generateAlarmMeterReport, generateMeterReport, fetchDeviceData } from "@/store/slices/admin/adminThunks";
+import {
+  deleteDevice,
+  generateAlarmMeterReport,
+  generateMeterReport,
+  fetchDeviceData,
+} from "@/store/slices/admin/adminThunks";
 import { AppDispatch, RootState } from "@/store";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -23,20 +28,34 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
         <div className="flex flex-col">
           <div className="flex items-center justify-between gap-8">
             {/* <span className="text-accent-color">{deviceData?.frequency_hz || 0} <span className="text-blue-500">Hz</span></span> */}
-            <span className="text-chart-1">{deviceData?.frequency_hz} <span className="text-blue-500">Hz</span></span>
+            <span className="text-chart-1">
+              {deviceData?.frequency_hz}{" "}
+              <span className="text-blue-500">Hz</span>
+            </span>
           </div>
           <div className="h-1 w-full bg-background-dark mt-2 mb-4">
             <div className="h-full bg-accent-color w-1/3"></div>
           </div>
-          <div className="flex justify-between">
-            <span className="text-accent-color"><span className="text-blue-500">W</span></span>
-            <span className="text-accent-color">{deviceData?.deviceData?.power_percentage || 0} <span className="text-blue-500">%</span></span>
+          <div className="flex justify-between gap-2">
+            <span className="text-accent-color">
+              <span className="text-blue-500">W</span>
+            </span>
+            <span className="text-accent-color">
+              {deviceData?.power_percentage || 0}{" "}
+              <span className="text-blue-500">%</span>
+            </span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-accent-color"><span className="text-blue-500">kW</span></span>
-            <span className="text-accent-color">{deviceData?.deviceData?.power_percentage/1000 || 0} <span className="text-blue-500">%</span></span>
+          <div className="flex justify-between gap-2">
+            <span className="text-accent-color">
+              <span className="text-blue-500">kW</span>
+            </span>
+            <span className="text-accent-color">
+              {deviceData?.power_percentage
+                ? (deviceData.power_percentage / 1000) * 100
+                : 0}{" "}
+              <span className="text-blue-500">%</span>
+            </span>
           </div>
-
         </div>
 
         {/* Second column */}
@@ -46,10 +65,18 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
           </div> */}
           <div className="flex flex-col">
             <span className="text-accent-color font-bold">Total</span>
-            <span className="  text-yellow-300">52.9 <span className="text-blue-500">kW</span></span>
-            <span className="text-yellow-300">56.5 <span className="text-blue-500">kWh</span></span>
-            <span className="text-yellow-300">19.8 <span className="text-blue-500">kVAr</span></span>
-            <span className="text-yellow-300">0.93 <span className="text-blue-500">pf</span></span>
+            <span className="  text-yellow-300">
+              0 <span className="text-blue-500">kW</span>
+            </span>
+            <span className="text-yellow-300">
+              0 <span className="text-blue-500">kWh</span>
+            </span>
+            <span className="text-yellow-300">
+              0 <span className="text-blue-500">kVAr</span>
+            </span>
+            <span className="text-yellow-300">
+              0 <span className="text-blue-500">pf</span>
+            </span>
           </div>
         </div>
         <div className="flex mx-4">
@@ -57,11 +84,21 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
             <span>Total</span>
           </div> */}
           <div className="flex flex-col">
-            <span className="text-accent-color font-bold">Energy Generator</span>
-            <span className="  text-yellow-300 ">414.4 <span className="text-blue-500">kW</span></span>
-            <span className="text-yellow-300">4.21 <span className="text-blue-500">kWh</span></span>
-            <span className="text-yellow-300">452.0 <span className="text-blue-500">kVAr</span></span>
-            <span className="text-yellow-300">173.9<span className="text-blue-500">kVArh</span></span>
+            <span className="text-accent-color font-bold">
+              Energy Generator
+            </span>
+            <span className="  text-yellow-300 ">
+              0 <span className="text-blue-500">kW</span>
+            </span>
+            <span className="text-yellow-300">
+              0 <span className="text-blue-500">kWh</span>
+            </span>
+            <span className="text-yellow-300">
+              0 <span className="text-blue-500">kVA r</span>
+            </span>
+            <span className="text-yellow-300">
+              0<span className="text-blue-500">kVArh</span>
+            </span>
           </div>
         </div>
 
@@ -97,7 +134,7 @@ function ManualModeHeader({
   isLoading,
   showReportButton = false,
   showDeleteButton = false,
-  customReportButton = null
+  customReportButton = null,
 }: {
   deviceData?: DeviceData;
   onDeleteDevice?: () => void;
@@ -155,15 +192,29 @@ export default function DeviceDetails() {
   const isLoading = useSelector((state: RootState) => state.admin.isLoading);
   const location = useLocation();
 
-  const [activeTab, setActiveTab] = useState<"engine" | "generator" | "alarms">("engine");
+  // Get the active tab from localStorage or use default "engine"
+  const [activeTab, setActiveTab] = useState<"engine" | "generator" | "alarms">(
+    () => {
+      const savedTab = localStorage.getItem("activeDeviceTab");
+      return (savedTab as "engine" | "generator" | "alarms") || "engine";
+    }
+  );
+
   const { currentDeviceData } = useSelector((state: RootState) => state.admin);
   console.log("Current Device Data:", currentDeviceData);
+
+  // Save the active tab to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("activeDeviceTab", activeTab);
+  }, [activeTab]);
 
   // Fetch device data when component mounts
   useEffect(() => {
     if (slug) {
       // Extract the device ID from the slug if needed
-      const deviceId = parseInt(slug.includes('/') ? slug.split('/').pop() || slug : slug);
+      const deviceId = parseInt(
+        slug.includes("/") ? slug.split("/").pop() || slug : slug
+      );
 
       // Get the meterId from location state if available
       const meterId = location.state?.meterId || deviceId;
@@ -176,11 +227,11 @@ export default function DeviceDetails() {
           toast.error("Failed to load device data");
         });
     }
-  }, [slug, dispatch, location.state]);
+  }, [slug, dispatch, location.state, activeTab]);
 
   const handleDeleteDevice = () => {
     if (slug) {
-      const deviceId = slug.includes('/') ? slug.split('/').pop() : slug;
+      const deviceId = slug.includes("/") ? slug.split("/").pop() : slug;
       console.log("Extracted device ID:", deviceId);
       dispatch(deleteDevice((deviceId || slug) as string))
         .unwrap()
@@ -200,13 +251,15 @@ export default function DeviceDetails() {
 
       // If the slug contains additional path segments (like 'dashboard/generator')
       // Extract just the device ID part if needed
-      const deviceId = slug.includes('/') ? slug.split('/').pop() : slug;
+      const deviceId = slug.includes("/") ? slug.split("/").pop() : slug;
       console.log("Extracted device ID:", deviceId);
 
-      dispatch(generateMeterReport({
-        meter_id: deviceId || slug,
-        time_range: "last_24",
-      }))
+      dispatch(
+        generateMeterReport({
+          meter_id: deviceId || slug,
+          time_range: "last_24",
+        })
+      )
         .unwrap()
         .then(() => {
           console.log("Report generated successfully");
@@ -219,7 +272,6 @@ export default function DeviceDetails() {
 
   return (
     <div className="flex flex-col relative h-[calc(100vh-3rem)] bg-background-dark text-text-primary">
-
       <div className="h-12 absolute bottom-0 right-0 left-0 flex bg-surface-dark rounded-t-md justify-center items-center px-2 border border-accent-color">
         <Button
           variant={activeTab === "engine" ? "default" : "secondary"}
@@ -260,29 +312,37 @@ export default function DeviceDetails() {
       </div>
 
       <div className="flex-1 overflow-auto px-4 no-scrollbar mb-14">
-        {activeTab === "engine" && (
-          <EngineTab
-            onDeleteDevice={handleDeleteDevice}
-            isLoading={isLoading}
-            deviceData={currentDeviceData}
-            onGenerateReport={handleGenerateReport}
-          />
-        )}
-        {activeTab === "generator" && (
-          <GeneratorTab
-            deviceData={currentDeviceData}
-            onDeleteDevice={handleDeleteDevice}
-            isLoading={isLoading}
-            onGenerateReport={handleGenerateReport}
-          />
-        )}
-        {activeTab === "alarms" && (
-          <AlarmsTab
-            deviceData={currentDeviceData}
-            onDeleteDevice={handleDeleteDevice}
-            isLoading={isLoading}
-            onGenerateReport={handleGenerateReport}
-          />
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <Loader2Icon className="size-20 text-(--accent-color) animate-spin" />
+          </div>
+        ) : (
+          <>
+            {activeTab === "engine" && (
+              <EngineTab
+                onDeleteDevice={handleDeleteDevice}
+                isLoading={isLoading}
+                deviceData={currentDeviceData || undefined}
+                onGenerateReport={handleGenerateReport}
+              />
+            )}
+            {activeTab === "generator" && (
+              <GeneratorTab
+                deviceData={currentDeviceData || undefined}
+                onDeleteDevice={handleDeleteDevice}
+                isLoading={isLoading}
+                onGenerateReport={handleGenerateReport}
+              />
+            )}
+            {activeTab === "alarms" && (
+              <AlarmsTab
+                deviceData={currentDeviceData || undefined}
+                onDeleteDevice={handleDeleteDevice}
+                isLoading={isLoading}
+                onGenerateReport={handleGenerateReport}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
@@ -297,7 +357,12 @@ interface TabProps {
   onGenerateReport?: () => void;
 }
 
-function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: TabProps) {
+function EngineTab({
+  onDeleteDevice,
+  isLoading,
+  deviceData,
+  onGenerateReport,
+}: TabProps) {
   return (
     <div className="flex flex-col gap-6 py-4">
       <ManualModeHeader
@@ -313,13 +378,13 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
       <StatusIconGrid />
 
       {/* Main gauges */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-row flex-wrap justify-center items-center gap-4">
         {/* RPM Gauge */}
-        <div className="rounded-lg p-2 flex flex-col items-center shadow-md">
-          <div className="w-full h-full relative">
+        <div className="rounded-lg p-2 flex flex-col items-center">
+          <div className="w-full h-fit flex justify-center relative">
             <ReactSpeedometer
-              width={window.innerWidth < 768 ? 150 : 280}
-              height={150}
+              width={window.innerWidth < 1475 ? 290 : 380}
+              height={window.innerWidth < 1475 ? 200 : 250}
               maxValue={3000}
               value={deviceData?.rpm || 0}
               needleColor="#BB86FC"
@@ -330,6 +395,7 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
               needleHeightRatio={0.7}
               needleTransition={Transition.easeQuadInOut}
               currentValueText=""
+              valueTextFontSize="0"
               segmentColors={Array(30).fill("#3A3A3A")}
               textColor="#BB86FC"
               customSegmentLabels={Array(30)
@@ -352,113 +418,114 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
                 })}
             />
             {/* Engine hours display */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 px-2 py-1 rounded text-yellow-300 text-sm border border-gray-600">
+            <div className="absolute bottom-0 left-36 2xl:left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 px-2 py-1 rounded text-yellow-300 text-sm border border-gray-600">
               <span>{deviceData?.engine_hours}</span>
               <span className="text-xs ml-1 text-gray-300">hrs</span>
             </div>
           </div>
-          <span className="text-xl font-bold">{deviceData?.rpm} <span className="text-blue-500">RPM</span></span>
+          <span className="mt-5 text-xl font-bold text-center">
+            {deviceData?.rpm} <span className="text-blue-500">RPM</span>
+          </span>
+        </div>
 
-          <div className="mt-3 flex flex-col text-xs">
-            {/* <div className="flex justify-between w-full">
-              <span className="text-text-secondary">Fuel Consumption</span>
-              <span className="text-text-primary">{deviceData?.fuel_rate_lph} <span className="text-blue-500">L/hr</span></span>
-            </div> */}
-            <div className="flex justify-between w-full gap-2">
-              <span className="text-text-secondary">Fuel Used</span>
-              <span className="text-text-primary">{deviceData?.fuel_level_percent} <span className="text-blue-500">%</span></span>
-            </div>
+        {/* Oil Pressure Gauge */}
+        <div className="bg-surface-dark rounded-lg p-2 flex flex-col justify-center items-center">
+          <div className="w-full flex justify-center">
+            <ReactSpeedometer
+              width={window.innerWidth < 1465 ? 110 : 110}
+              height={window.innerWidth < 1465 ? 110 : 110}
+              maxValue={800}
+              value={deviceData?.oil_pressure_kpa || 0}
+              needleColor="#FF5252"
+              startColor="#2E2E2E"
+              endColor="#2E2E2E"
+              segments={5}
+              ringWidth={15}
+              needleHeightRatio={0.7}
+              currentValueText=""
+              textColor="#FFFFFF"
+
+            />
+          </div>
+          <div className="mt-0">
+            <span className="text-text-secondary text-xs">
+              Oil Pressure <span className="text-blue-500">kPA</span>
+            </span>
           </div>
         </div>
 
-        {/* Four gauge cluster */}
-        <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {/* Oil Pressure Gauge */}
-          <div className="bg-surface-dark rounded-lg p-2 flex flex-col justify-center items-center shadow-md">
-            <div className="w-full flex justify-center">
-              <ReactSpeedometer
-                width={window.innerWidth < 768 ? 200 : 160}
-                height={window.innerWidth < 768 ? 120 : 100}
-                maxValue={1000}
-                value={deviceData?.oil_pressure_kpa || 0}
-                needleColor="#FF5252"
-                startColor="#2E2E2E"
-                endColor="#2E2E2E"
-                segments={5}
-                ringWidth={15}
-                needleHeightRatio={0.7}
-                currentValueText=""
-                textColor="#FFFFFF"
-              />
-            </div>
-            <span className="text-text-primary text-sm">{deviceData?.oil_pressure_kpa} <span className="text-blue-500">kPA</span></span>
-            <span className="text-text-secondary text-xs">Oil Pressure</span>
+        {/* Coolant Temp Gauge */}
+        <div className="bg-surface-dark rounded-lg p-2 flex flex-col justify-center items-center">
+          <div className="w-full flex justify-center">
+            <ReactSpeedometer
+              width={window.innerWidth < 1465 ? 110 : 110}
+              height={window.innerWidth < 1465 ? 110 : 110}
+              maxValue={120}
+              value={deviceData?.coolant_temp_c || 0}
+              needleColor="#FF5252"
+              startColor="#2E2E2E"
+              endColor="#2E2E2E"
+              segments={5}
+              ringWidth={15}
+              needleHeightRatio={0.7}
+              currentValueText=""
+              textColor="#FFFFFF"
+            />
           </div>
-
-          {/* Coolant Temp Gauge */}
-          <div className="bg-surface-dark rounded-lg p-2 flex flex-col justify-center items-center shadow-md">
-            <div className="w-full flex justify-center">
-              <ReactSpeedometer
-                width={window.innerWidth < 768 ? 200 : 160}
-                height={window.innerWidth < 768 ? 120 : 100}
-                maxValue={120}
-                value={deviceData?.coolant_temp_c || 0}
-                needleColor="#FF5252"
-                startColor="#2E2E2E"
-                endColor="#2E2E2E"
-                segments={5}
-                ringWidth={15}
-                needleHeightRatio={0.7}
-                currentValueText=""
-                textColor="#FFFFFF"
-              />
-            </div>
-            <span className="text-text-primary text-sm">{deviceData?.coolant_temp_c} <span className="text-blue-500">°C</span></span>
-            <span className="text-text-secondary text-xs">Coolant Temp</span>
+          <div className="mt-0">
+            <span className="text-text-secondary text-xs">
+              Coolant Temp <span className="text-blue-500">°C</span>
+            </span>
           </div>
+        </div>
 
-          {/* Battery Voltage */}
-          <div className="bg-surface-dark rounded-lg p-2 flex flex-col justify-center items-center shadow-md">
-            <div className="w-full flex justify-center">
-              <ReactSpeedometer
-                width={window.innerWidth < 768 ? 200 : 160}
-                height={window.innerWidth < 768 ? 120 : 100}
-                maxValue={30}
-                value={deviceData?.battery_voltage_v || 0}
-                needleColor="#FF5252"
-                startColor="#2E2E2E"
-                endColor="#2E2E2E"
-                segments={5}
-                ringWidth={15}
-                needleHeightRatio={0.7}
-                currentValueText=""
-                textColor="#FFFFFF"
-              />
-            </div>
-            <span className="text-text-primary text-sm">{deviceData?.battery_voltage_v} <span className="text-blue-500">VDC</span></span>
-            <span className="text-text-secondary text-xs">Battery</span>
+        {/* Battery Voltage */}
+        <div className="bg-surface-dark rounded-lg p-2 flex flex-col justify-center items-center">
+          <div className="w-full flex justify-center">
+            <ReactSpeedometer
+              width={window.innerWidth < 1465 ? 110 : 110}
+              height={window.innerWidth < 1465 ? 110 : 110}
+              maxValue={30}
+              value={deviceData?.battery_voltage_v || 0}
+              needleColor="#FF5252"
+              startColor="#2E2E2E"
+              endColor="#2E2E2E"
+              segments={5}
+              ringWidth={15}
+              needleHeightRatio={0.7}
+              currentValueText=""
+              textColor="#FFFFFF"
+            />
           </div>
+          <div className="mt-0">
+            <span className="text-text-secondary text-xs">
+              Battery <span className="text-blue-500">VDC</span>
+            </span>
+          </div>
+        </div>
 
-          {/* Charge Current */}
-          <div className="bg-surface-dark rounded-lg p-2 flex flex-col justify-center items-center shadow-md">
-            <div className="w-full flex justify-center">
-              <ReactSpeedometer
-                width={window.innerWidth < 768 ? 200 : 160}
-                height={window.innerWidth < 768 ? 120 : 100}
-                maxValue={50}
-                value={27.7}
-                needleColor="#FF5252"
-                startColor="#2E2E2E"
-                endColor="#2E2E2E"
-                segments={5}
-                ringWidth={15}
-                needleHeightRatio={0.7}
-                currentValueText=""
-                textColor="#FFFFFF"
-              />
-            </div>
-            <span className="text-text-primary text-sm">27.7 <span className="text-blue-500">VDC</span></span>
-            <span className="text-text-secondary text-xs">Charge</span>
+        {/* Charge Current */}
+        <div className="bg-surface-dark rounded-lg p-2 flex flex-col justify-center items-center">
+          <div className="w-full flex justify-center">
+            <ReactSpeedometer
+              width={window.innerWidth < 1465 ? 110 : 110}
+              height={window.innerWidth < 1465 ? 110 : 110}
+              maxValue={50}
+              value={0}
+              needleColor="#FF5252"
+              startColor="#2E2E2E"
+              endColor="#2E2E2E"
+              segments={5}
+              ringWidth={15}
+              needleHeightRatio={0.7}
+              currentValueText=""
+              textColor="#FFFFFF"
+            />
+          </div>
+          <div className="mt-0">
+            <span className="text-text-secondary text-xs">
+              Charge <span className="text-blue-500">VDC</span>
+            </span>
           </div>
         </div>
       </div>
@@ -466,7 +533,12 @@ function EngineTab({ onDeleteDevice, isLoading, deviceData, onGenerateReport }: 
   );
 }
 
-function GeneratorTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport }: TabProps) {
+function GeneratorTab({
+  deviceData,
+  onDeleteDevice,
+  isLoading,
+  onGenerateReport,
+}: TabProps) {
   return (
     <div className="flex flex-col gap-6 py-4">
       <ManualModeHeader
@@ -479,149 +551,201 @@ function GeneratorTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport 
       />
 
       {/* Voltage Output */}
-      <div className="bg-surface-dark p-4 rounded-lg border border-text-secondary shadow-md">
-        <h2 className="text-lg font-semibold mb-4 text-accent-color">Voltage Output</h2>
+      <div className="bg-surface-dark p-4 rounded-lg border border-text-secondary">
+        <h2 className="text-lg font-semibold mb-4 text-accent-color">
+          Voltage Output
+        </h2>
         <div className="grid grid-cols-4 gap-4">
           <div className="flex flex-col items-center">
             <ReactSpeedometer
               maxValue={500}
               value={deviceData?.avg_ll_volt}
-              needleColor="#BB86FC"
+              needleColor="#FF5252"
               startColor="#2E2E2E"
               endColor="#2E2E2E"
               segments={5}
               ringWidth={15}
               needleHeightRatio={0.7}
               currentValueText=""
-              width={120}
+              width={150}
               height={120}
+              textColor="#FFFFFF"
             />
           </div>
           <div className="flex flex-col items-center">
             <ReactSpeedometer
               maxValue={500}
               value={deviceData?.avg_ln_volt}
-              needleColor="#BB86FC"
+              needleColor="#FF5252"
               startColor="#2E2E2E"
               endColor="#2E2E2E"
               segments={5}
               ringWidth={15}
               needleHeightRatio={0.7}
               currentValueText=""
-              width={120}
+              width={150}
               height={120}
+              textColor="#FFFFFF"
             />
-
           </div>
           <div className="flex flex-col items-center">
             <ReactSpeedometer
               maxValue={500}
               value={deviceData?.avg_current}
-              needleColor="#BB86FC"
+              needleColor="#FF5252"
               startColor="#2E2E2E"
               endColor="#2E2E2E"
               segments={5}
               ringWidth={15}
               needleHeightRatio={0.7}
               currentValueText=""
-              width={120}
+              width={150}
               height={120}
+              textColor="#FFFFFF"
             />
-
           </div>
           <div className="flex flex-col items-center">
             <ReactSpeedometer
               maxValue={500}
               value={deviceData?.frequency_hz}
-              needleColor="#BB86FC"
+              needleColor="#FF5252"
               startColor="#2E2E2E"
               endColor="#2E2E2E"
               segments={5}
               ringWidth={15}
               needleHeightRatio={0.7}
               currentValueText=""
-              width={120}
+              width={150}
               height={120}
+              textColor="#FFFFFF"
             />
-
           </div>
-
         </div>
         <div className="grid grid-cols-1 gap-2 justify-center mt-4 ml-12">
           <div className="flex flex-row items-center">
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500">Phase</span>
 
-              <span className="text-text-primary mt-2">L1-L2  </span>
+              <span className="text-text-primary mt-2">L1-L2 </span>
               <span className="text-text-primary mt-2">L2-L3 </span>
-              <span className="text-text-primary mt-2">L3-L1  </span>
-
-
+              <span className="text-text-primary mt-2">L3-L1 </span>
             </div>
 
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500 mt-2">Volts</span>
 
-              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_a_voltage_ll}</span>  </span>
-              <span className="text-text-primary mt-2"><span className="">{deviceData?.phase_b_voltage_ll}</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_c_voltage_ll}</span> </span>
-
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">{deviceData?.phase_a_voltage_ll}</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                <span className="">{deviceData?.phase_b_voltage_ll}</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">{deviceData?.phase_c_voltage_ll}</span>{" "}
+              </span>
             </div>
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500">L-N</span>
 
-              <span className="text-text-primary mt-2">L1 <span className="">{deviceData?.phase_a_voltage_v}</span>   </span>
-              <span className="text-text-primary mt-2">L2  <span className="">{deviceData?.phase_b_voltage_v}</span>  </span>
-              <span className="text-text-primary mt-2">L3  <span className="">{deviceData?.phase_c_voltage_v}</span>   </span>
-
-
+              <span className="text-text-primary mt-2">
+                L1 <span className="">{deviceData?.phase_a_voltage_v}</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                L2 <span className="">{deviceData?.phase_b_voltage_v}</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                L3 <span className="">{deviceData?.phase_c_voltage_v}</span>{" "}
+              </span>
             </div>
 
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500 mt-2">Amps</span>
 
-              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_a_current_a}</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_b_current_a}</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_c_current_a}</span> </span>
-
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">{deviceData?.phase_a_current_a}</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">{deviceData?.phase_b_current_a}</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">{deviceData?.phase_c_current_a}</span>{" "}
+              </span>
             </div>
 
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500 mt-2">kW</span>
 
-              <span className="text-text-primary mt-2"><span className="">{deviceData?.phase_a_real_power}</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_b_real_power}</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_c_real_power}</span> </span>
-
+              <span className="text-text-primary mt-2">
+                <span className="">{deviceData?.phase_a_real_power}</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">{deviceData?.phase_b_real_power}</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">{deviceData?.phase_c_real_power}</span>{" "}
+              </span>
             </div>
 
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500 mt-2">kVA</span>
 
-              <span className="text-text-primary mt-2"><span className="">{deviceData?.phase_a_apparent_power}</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_b_apparent_power}</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_c_apparent_power}</span> </span>
-
+              <span className="text-text-primary mt-2">
+                <span className="">{deviceData?.phase_a_apparent_power}</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">
+                  {deviceData?.phase_b_apparent_power}
+                </span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">
+                  {deviceData?.phase_c_apparent_power}
+                </span>{" "}
+              </span>
             </div>
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500 mt-2">kVAr</span>
 
-              <span className="text-text-primary mt-2"><span className="">{deviceData?.phase_a_reactive_power}</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_b_reactive_power}</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">{deviceData?.phase_c_reactive_power}</span> </span>
-
+              <span className="text-text-primary mt-2">
+                <span className="">{deviceData?.phase_a_reactive_power}</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">
+                  {deviceData?.phase_b_reactive_power}
+                </span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">
+                  {deviceData?.phase_c_reactive_power}
+                </span>{" "}
+              </span>
             </div>
             <div className="w-full flex  flex-col justify-center">
               <span className="text-blue-500 mt-2">P</span>
 
-              <span className="text-text-primary mt-2"><span className="">0 Lag</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">0 Lag</span> </span>
-              <span className="text-text-primary mt-2"> <span className="">0 Lag</span> </span>
-
+              <span className="text-text-primary mt-2">
+                <span className="">0 Lag</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">0 Lag</span>{" "}
+              </span>
+              <span className="text-text-primary mt-2">
+                {" "}
+                <span className="">0 Lag</span>{" "}
+              </span>
             </div>
-
-
-
           </div>
         </div>
       </div>
@@ -629,7 +753,12 @@ function GeneratorTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport 
   );
 }
 
-function AlarmsTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport }: TabProps) {
+function AlarmsTab({
+  deviceData,
+  onDeleteDevice,
+  isLoading,
+  onGenerateReport,
+}: TabProps) {
   console.log("Alarms Tab Data:", deviceData);
   const dispatch = useDispatch<AppDispatch>();
   const { slug } = useParams();
@@ -675,13 +804,13 @@ function AlarmsTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport }: 
   const handleGenerateAlarmReport = () => {
     console.log("Generating alarm report...");
     console.log("Device Data:", deviceData);
-    const deviceId = slug.includes('/') ? slug.split('/').pop() : slug;
+    const deviceId = slug?.includes("/") ? slug.split("/").pop() : slug;
     console.log("Extracted device ID:", deviceId);
 
     if (deviceData) {
       dispatch(
         generateAlarmMeterReport({
-          meter_id: deviceId || slug,
+          meter_id: deviceId || slug || "",
           time_range: "last_24",
         })
       )
@@ -736,21 +865,25 @@ function AlarmsTab({ deviceData, onDeleteDevice, isLoading, onGenerateReport }: 
             className="grid grid-cols-12 gap-4 py-3 border-b border-text-secondary/30 text-sm"
           >
             <div className="col-span-1 text-text-secondary">{alarm.id}</div>
-            <div className="col-span-3 text-text-primary">{alarm.timestamp}</div>
+            <div className="col-span-3 text-text-primary">
+              {alarm.timestamp}
+            </div>
             <div
-              className={`col-span-2 font-medium ${alarm.type === "Critical"
+              className={`col-span-2 font-medium ${
+                alarm.type === "Critical"
                   ? "text-destructive"
                   : alarm.type === "Warning"
-                    ? "text-chart-3"
-                    : "text-accent-color"
-                }`}
+                  ? "text-chart-3"
+                  : "text-accent-color"
+              }`}
             >
               {alarm.type}
             </div>
             <div className="col-span-4 text-text-primary">{alarm.message}</div>
             <div
-              className={`col-span-2 font-medium ${alarm.status === "Active" ? "text-destructive" : "text-chart-1"
-                }`}
+              className={`col-span-2 font-medium ${
+                alarm.status === "Active" ? "text-destructive" : "text-chart-1"
+              }`}
             >
               {alarm.status}
             </div>

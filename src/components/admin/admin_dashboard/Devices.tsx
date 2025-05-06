@@ -1,9 +1,9 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addDevice, fetchDeviceData, fetchMeters } from "@/store/slices/admin/adminThunks";
+import { addDevice, fetchMeters } from "@/store/slices/admin/adminThunks";
 import { RootState, AppDispatch } from "@/store";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { Loader2Icon, PlusIcon, SearchIcon } from "lucide-react";
 import AddDialogBox from "./AddDialogBox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +20,9 @@ type FormValues = z.infer<typeof addDeviceSchema>;
 
 export default function Devices() {
   const dispatch = useDispatch<AppDispatch>();
-  const { get_meters } = useSelector((state: RootState) => state.admin);
+  const { get_meters, isLoading } = useSelector(
+    (state: RootState) => state.admin
+  );
   const [isAddDeviceOpen, setIsAddDeviceOpen] = useState(false);
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
@@ -53,14 +55,10 @@ export default function Devices() {
     }
   }, [searchTerm, get_meters]);
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  const onSubmit = (values: FormValues) => {
-    setIsLoading(true);
-    dispatch(addDevice(values));
+  const onSubmit = async (values: FormValues) => {
+    await dispatch(addDevice(values));
     setIsAddDeviceOpen(false);
     form.reset();
-    setIsLoading(false);
   };
 
   const handleAddDevice = () => {
@@ -101,11 +99,15 @@ export default function Devices() {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredMeters.length > 0 ? (
+        {isLoading ? (
+          <div className="col-span-3 flex items-center justify-center py-20">
+            <Loader2Icon className="size-20 text-(--accent-color) animate-spin" />
+          </div>
+        ) : filteredMeters.length > 0 ? (
           filteredMeters.map((meter) => (
             <div
               key={meter.id}
-              onClick={() => handleDeviceClick( meter.device_id, meter.id)}
+              onClick={() => handleDeviceClick(meter.device_id, meter.id)}
               className="cursor-pointer bg-gray-800 p-4 rounded-lg hover:bg-gray-700 transition-colors"
             >
               <div className="flex flex-col">
