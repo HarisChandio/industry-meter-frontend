@@ -145,7 +145,7 @@ export default function AssignMeterToEngineerDialog({
               disabled={
                 !selectedMeterId || isLoading || availableMeters.length === 0
               }
-              className="bg-accent-color text-text-primary hover:bg-accent-hover transition-colors"
+              className="bg-(--color-bg-accent) text-(--color-text-secondary) hover:bg-(--color-bg-accent-hover) transition-colors"
             >
               {isLoading ? "Assigning..." : "Assign Meter"}
             </Button>

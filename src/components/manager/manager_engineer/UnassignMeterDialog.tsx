@@ -76,7 +76,7 @@ export default function UnassignMeterDialog({
             type="button"
             onClick={handleUnassign}
             disabled={isLoading}
-            className="bg-accent-color text-text-primary hover:bg-accent-hover transition-colors"
+            className="bg-(--color-bg-accent) text-(--color-text-secondary) hover:bg-(--color-bg-accent-hover) transition-colors"
           >
             {isLoading ? "Processing..." : "Yes, Unassign"}
           </Button>

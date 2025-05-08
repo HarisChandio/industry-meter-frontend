@@ -109,7 +109,7 @@ export default function EngineerDetail({
   return (
     <>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-(--surface-dark) border border-gray-700 text-(--text-primary) max-h-[90vh] overflow-y-auto no-scrollbar">
+        <DialogContent className="bg-gray-800 border border-gray-700 text-(--text-primary) max-h-[90vh] overflow-y-auto no-scrollbar">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-(--text-primary)">
               Engineer Details
@@ -122,7 +122,7 @@ export default function EngineerDetail({
 
           <div className="space-y-4 my-2">
             {/* Engineer Info Card */}
-            <div className="bg-(--surface-dark) p-2 rounded-lg border border-gray-700 shadow-md">
+            <div className="bg-gray-800 p-2 rounded-lg border border-gray-700 shadow-md">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 truncate">
                 <div className="space-y-1">
                   <p className="text-(--text-secondary) text-sm font-medium">
@@ -144,7 +144,7 @@ export default function EngineerDetail({
             </div>
 
             <div className="mt-6">
-              <div className="bg-(--surface-dark) rounded-lg border border-gray-700 shadow-md">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 shadow-md">
                 <div className="overflow-x-auto">
                   {isLoading ? (
                     <div className="flex justify-center items-center py-8">
@@ -190,7 +190,7 @@ export default function EngineerDetail({
                               </td>
                               <td className="py-3 px-4 text-(--text-primary)">
                                 <button
-                                  className="px-4 py-2 bg-accent-color hover:bg-accent-hover text-white rounded-md transition-colors text-sm"
+                                  className="px-4 py-2 bg-(--color-bg-accent) hover:bg-(--color-bg-accent-hover) text-(--color-text-secondary) rounded-md transition-colors text-sm"
                                   onClick={() => handleUnassignMeter(meter)}
                                 >
                                   Unassign Meter
@@ -219,7 +219,7 @@ export default function EngineerDetail({
                       </svg>
                       <p>No meters assigned to this engineer.</p>
                       <button
-                        className="mt-4 px-4 py-2 bg-accent-color hover:bg-accent-hover text-white rounded-md transition-colors text-sm"
+                        className="mt-4 px-4 py-2 bg-(--color-bg-accent) hover:bg-(--color-bg-accent-hover) text-(--color-text-secondary) rounded-md transition-colors text-sm"
                         onClick={handleAssignMeter}
                       >
                         Assign New Meter
@@ -235,7 +235,7 @@ export default function EngineerDetail({
             <HoverName title="Assign Meter">
               <Button
                 variant="outline"
-                className="bg-surface-dark text-text-primary border border-text-secondary hover:border-accent-color hover:bg-[#101828] hover:text-accent-hover"
+                className="bg-(--color-bg-accent) text-(--color-text-secondary) hover:text-(--color-bg-accent) border border-(--color-border-accent-hover) hover:border-(--color-bg-accent) hover:bg-transparent "
                 onClick={handleAssignMeter}
               >
                 <PlusIcon className="size-3" />

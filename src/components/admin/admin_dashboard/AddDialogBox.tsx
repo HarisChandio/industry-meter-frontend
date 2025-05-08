@@ -74,7 +74,7 @@ export default function AddDialogBox({
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-(--color-bg-accent) hover:bg-(--color-bg-accent-hover) text-white"
+                  className="bg-(--color-bg-accent) hover:bg-(--color-bg-accent-hover) text-(--color-text-secondary)"
                 >
                   Add
                 </Button>

@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addDevice, fetchMeters } from "@/store/slices/admin/adminThunks";
 import { RootState, AppDispatch } from "@/store";
-import { Loader2Icon, PlusIcon, SearchIcon } from "lucide-react";
+import { PlusIcon, SearchIcon } from "lucide-react";
 import AddDialogBox from "./AddDialogBox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import Loading from "@/components/common/Loading";
 
 const addDeviceSchema = z.object({
   device_id: z.coerce
@@ -90,7 +91,7 @@ export default function Devices() {
           </div>
 
           <button
-            className="bg-(--color-bg-accent) text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-(--color-bg-accent-hover) transition-colors"
+            className="bg-(--color-bg-accent) text-[#111828] px-4 py-2 rounded-md flex items-center gap-2 hover:bg-(--color-bg-accent-hover) transition-colors"
             onClick={() => handleAddDevice()}
           >
             <PlusIcon className="w-4 h-4" />
@@ -101,7 +102,7 @@ export default function Devices() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {isLoading ? (
           <div className="col-span-3 flex items-center justify-center py-20">
-            <Loader2Icon className="size-20 text-(--accent-color) animate-spin" />
+            <Loading />
           </div>
         ) : filteredMeters.length > 0 ? (
           filteredMeters.map((meter) => (

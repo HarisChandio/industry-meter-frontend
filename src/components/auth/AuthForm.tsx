@@ -274,7 +274,7 @@ export default function AuthForm({ type }: { type: FormType }) {
 
             <Button
               type="submit"
-              className=" w-full rounded-md bg-accent-color text-white hover:bg-accent-color/80 "
+              className=" w-full rounded-md bg-(--color-bg-accent) text-(--color-text-secondary) hover:bg-(--color-bg-accent-hover) "
               disabled={isLoading}
             >
               {isSignIn ? "Sign In" : "Create An Account"}
@@ -284,7 +284,7 @@ export default function AuthForm({ type }: { type: FormType }) {
         </Form>
         <p>
           {isSignIn ? "Don't have an account? " : "Already have an account? "}
-          <Link to={isSignIn ? "/sign-up" : "/sign-in"}>
+          <Link to={isSignIn ? "/sign-up" : "/sign-in"} className=" text-(--color-bg-accent) ">
             {isSignIn ? "Sign Up" : "Sign In"}
           </Link>
         </p>

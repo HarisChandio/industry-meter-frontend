@@ -284,7 +284,7 @@ export default function Sidebar() {
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 text-white hover:text-red-600"
+                    className="flex items-center gap-2 bg-(--color-bg-accent) text-(--color-text-secondary) hover:text-red-600"
                   >
                     <LogOut className="size-5" />
                   </button>
@@ -292,7 +292,7 @@ export default function Sidebar() {
               ) : (
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center w-full text-white hover:text-red-600"
+                  className="flex items-center justify-center w-full bg-(--color-bg-accent) text-(--color-text-secondary) hover:text-red-600"
                   title="Logout"
                 >
                   <LogOut className="size-5" />

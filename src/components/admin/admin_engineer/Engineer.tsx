@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "@/store";
-import { fetchEngineers } from "@/store/slices/admin/adminThunks";
-import { Loader2Icon, SearchIcon } from "lucide-react";
-import { Engineer as EngineerType } from "@/store/slices/admin/adminTypes";
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/store';
+import { fetchEngineers } from '@/store/slices/admin/adminThunks';
+import { SearchIcon } from 'lucide-react';
+import { Engineer as EngineerType } from '@/store/slices/admin/adminTypes';
+import Loading from '@/components/common/Loading';
 
 export default function Engineer() {
   const dispatch = useDispatch<AppDispatch>();
   const { engineers, error } = useSelector((state: RootState) => state.admin);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     setIsLoading(true);
@@ -54,8 +55,8 @@ export default function Engineer() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2Icon className="size-20 text-(--accent-color) animate-spin" />
+        <div className="col-span-3 flex items-center justify-center py-20">
+          <Loading />
         </div>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-gray-800">
@@ -92,8 +93,8 @@ export default function Engineer() {
                     className="py-6 px-4 text-center text-gray-400"
                   >
                     {searchTerm
-                      ? "No matching engineers found"
-                      : "No engineers found"}
+                      ? 'No matching engineers found'
+                      : 'No engineers found'}
                   </td>
                 </tr>
               )}

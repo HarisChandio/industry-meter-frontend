@@ -119,7 +119,7 @@ export default function DeviceDetails() {
           tabs={tabOptions}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          styleVariant="manager"
+          styleVariant="engineer"
         />
       </div>
 

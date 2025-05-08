@@ -20,7 +20,7 @@ import ManagerEngineerPage from "@/pages/manager/engineer";
 
 // Engineer
 import Engineer from "@/pages/engineer/index";
-import EngineerDeviceDetails from "@/pages/engineer/dashboard/slug";
+import DeviceDetails from "@/components/engineer/engineer_dashboard/DeviceDetails";
 
 // Lazy load components for better performance
 const SignIn = lazy(() => import("../pages/auth/SignIn"));
@@ -183,7 +183,7 @@ export const AppRoutes = () => {
             path="/engineer/dashboard/:slug"
             element={
               <DashboardLayout>
-                <EngineerDeviceDetails />
+                <DeviceDetails />
               </DashboardLayout>
             }
           />

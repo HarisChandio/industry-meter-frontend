@@ -4,30 +4,30 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { Dialog } from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
 import {
   Manager as ManagerType,
   GetMeters,
   Engineer,
-} from "@/store/slices/admin/adminTypes";
+} from '@/store/slices/admin/adminTypes';
 import {
   PlusIcon,
   GaugeIcon,
   UserPlusIcon,
   TrashIcon,
   Loader2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useState, useEffect, useRef } from "react";
-import AssignMeterDialog from "./AssignMeterDialog";
-import AssignEngineerDialog from "./AssignEngineerDialog";
-import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
-import { fetchManagerDetails } from "@/store/slices/admin/adminThunks";
-import { RootState } from "@/store";
-import { HoverName } from "@/components/common/HoverName";
-import { toast } from "sonner";
-import apiClient from "@/lib/axios";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useState, useEffect, useRef } from 'react';
+import AssignMeterDialog from './AssignMeterDialog';
+import AssignEngineerDialog from './AssignEngineerDialog';
+import { useAppDispatch, useAppSelector } from '@/hooks/reduxHooks';
+import { fetchManagerDetails } from '@/store/slices/admin/adminThunks';
+import { RootState } from '@/store';
+import { HoverName } from '@/components/common/HoverName';
+import { toast } from 'sonner';
+import apiClient from '@/lib/axios';
 
 export default function ManagerDetail({
   selectedManager,
@@ -45,7 +45,7 @@ export default function ManagerDetail({
   const [isAssignMeterDialogOpen, setIsAssignMeterDialogOpen] = useState(false);
   const [isAssignEngineerDialogOpen, setIsAssignEngineerDialogOpen] =
     useState(false);
-  const [activeTab, setActiveTab] = useState<"meter" | "engineer">("meter");
+  const [activeTab, setActiveTab] = useState<'meter' | 'engineer'>('meter');
 
   // Use refs to track if we've already fetched data for this manager
   const dataFetchedRef = useRef<{ [managerId: number]: boolean }>({});
@@ -125,13 +125,13 @@ export default function ManagerDetail({
 
     try {
       await apiClient.delete(`/api/admin/assignments/${engineerAssignmentId}/`);
-      toast.success("Engineer assignment deleted successfully");
+      toast.success('Engineer assignment deleted successfully');
 
       // Refresh manager details after deletion
       dispatch(fetchManagerDetails(selectedManager.id));
     } catch (error) {
-      console.error("Error deleting engineer assignment:", error);
-      toast.error("Failed to delete engineer assignment");
+      console.error('Error deleting engineer assignment:', error);
+      toast.error('Failed to delete engineer assignment');
     } finally {
       setIsDeletingEngineerAssignment(false);
       setDeletingEngineerId(null);
@@ -155,18 +155,18 @@ export default function ManagerDetail({
 
     setIsDeletingMeterAssignment(true);
     setDeletingMeterId(meterId);
-    
+
     try {
       await apiClient.delete(
         `/api/admin/meter-assignments/${meterAssignmentId}/`
       );
-      toast.success("Meter assignment deleted successfully");
+      toast.success('Meter assignment deleted successfully');
 
       // Refresh manager details after deletion
       dispatch(fetchManagerDetails(selectedManager.id));
     } catch (error) {
-      console.error("Error deleting meter assignment:", error);
-      toast.error("Failed to delete meter assignment");
+      console.error('Error deleting meter assignment:', error);
+      toast.error('Failed to delete meter assignment');
     } finally {
       setIsDeletingMeterAssignment(false);
       setDeletingMeterId(null);
@@ -177,20 +177,20 @@ export default function ManagerDetail({
     <>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         {selectedManager && (
-          <DialogContent className="bg-(--surface-dark) border border-gray-700 text-(--text-primary) max-h-[90vh] overflow-y-auto no-scrollbar">
+          <DialogContent className="bg-gray-800 border border-gray-700 text-(--text-primary) max-h-[90vh] overflow-y-auto no-scrollbar">
             <DialogHeader>
               <DialogTitle className="text-xl font-semibold text-(--text-primary)">
                 Manager Details
               </DialogTitle>
               <DialogDescription className="text-(--text-secondary)">
-                View and manage details for {selectedManager.first_name}{" "}
+                View and manage details for {selectedManager.first_name}{' '}
                 {selectedManager.last_name}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 my-2">
               {/* Manager Info Card */}
-              <div className="bg-(--surface-dark) p-2 rounded-lg border border-gray-700 shadow-md">
+              <div className="bg-gray-800 p-2 rounded-lg border border-gray-700 shadow-md">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 truncate">
                   <div className="space-y-1">
                     <p className="text-(--text-secondary) text-sm font-medium">
@@ -224,28 +224,28 @@ export default function ManagerDetail({
                   <div className="flex mb-3">
                     <button
                       className={`py-1 px-5 font-medium transition-colors ${
-                        activeTab === "meter"
-                          ? "text-(--text-primary) border-b-2 border-accent-color"
-                          : "text-(--text-secondary) bg-transparent hover:text-(--text-primary)"
+                        activeTab === 'meter'
+                          ? 'bg-(--color-bg-accent) text-(--color-text-secondary) border-b-2 border-(--color-border-accent-hover)'
+                          : 'text-(--text-secondary) bg-transparent hover:text-(--text-primary)'
                       }`}
-                      onClick={() => setActiveTab("meter")}
+                      onClick={() => setActiveTab('meter')}
                     >
                       Meters
                     </button>
                     <button
                       className={`py-1 px-5 font-medium transition-colors ${
-                        activeTab === "engineer"
-                          ? "text-(--text-primary) border-b-2 border-accent-color"
-                          : "text-(--text-secondary) bg-transparent hover:text-(--text-primary)"
+                        activeTab === 'engineer'
+                          ? 'bg-(--color-bg-accent) text-(--color-text-secondary) border-b-2 border-(--color-border-accent-hover)'
+                          : 'text-(--text-secondary) bg-transparent hover:text-(--text-primary)'
                       }`}
-                      onClick={() => setActiveTab("engineer")}
+                      onClick={() => setActiveTab('engineer')}
                     >
                       Engineers
                     </button>
                   </div>
 
-                  {activeTab === "meter" && (
-                    <div className="bg-(--surface-dark) rounded-lg border border-gray-700 shadow-md">
+                  {activeTab === 'meter' && (
+                    <div className="bg-gray-800 rounded-lg border border-gray-700 shadow-md">
                       <div className="overflow-x-auto">
                         {managerDetail.meters &&
                         managerDetail.meters.length > 0 ? (
@@ -269,7 +269,7 @@ export default function ManagerDetail({
                                   (meter: GetMeters) => (
                                     <tr
                                       key={meter.id}
-                                      className="border-b border-gray-700 last:border-b-0 hover:bg-gray-800 transition-colors"
+                                      className="border-b border-gray-700 last:border-b-0 hover:bg-gray-800 transition-colors rounded-b-lg "
                                     >
                                       <td className="py-3 px-4 text-(--text-primary)">
                                         {meter.device_id}
@@ -280,7 +280,7 @@ export default function ManagerDetail({
                                       <td className="py-3 px-4 ">
                                         <HoverName title="Unassign Meter">
                                           <Button
-                                            className="bg-accent-color text-text-primary border border-text-secondary hover:border-accent-color hover:bg-[#101828] hover:text-accent-hover"
+                                            className="bg-(--color-bg-accent) text-(--color-text-secondary) border border-(--color-border-secondary) hover:border-(--color-bg-accent) hover:bg-transparent hover:text-(--color-bg-accent)"
                                             onClick={() =>
                                               handleDeleteMeterAssignment(
                                                 meter.id
@@ -303,7 +303,7 @@ export default function ManagerDetail({
                             </table>
                           </div>
                         ) : (
-                          <div className="text-center py-8 text-(--text-secondary) flex flex-col items-center">
+                          <div className=" bg-gray-800 rounded-lg text-center py-8 text-(--text-secondary) flex flex-col items-center">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               className="h-16 w-16 text-gray-600 mb-4"
@@ -319,7 +319,7 @@ export default function ManagerDetail({
                               />
                             </svg>
                             <p>No meter assignments found.</p>
-                            <button className="mt-4 px-4 py-2 bg-accent-color hover:bg-accent-hover text-white rounded-md transition-colors text-sm">
+                            <button className="mt-4 px-4 py-2 bg-(--color-bg-accent) hover:bg-(--color-bg-accent-hover) text-(--color-text-secondary) rounded-md transition-colors text-sm">
                               Assign New Meter
                             </button>
                           </div>
@@ -328,8 +328,8 @@ export default function ManagerDetail({
                     </div>
                   )}
 
-                  {activeTab === "engineer" && (
-                    <div className="bg-(--surface-dark) rounded-lg border border-gray-700 shadow-md">
+                  {activeTab === 'engineer' && (
+                    <div className="bg-gray-800 rounded-lg border border-gray-700 shadow-md">
                       <div className="overflow-x-auto">
                         {managerDetail &&
                         managerDetail.engineers &&
@@ -354,7 +354,7 @@ export default function ManagerDetail({
                                   (engineer: Engineer) => (
                                     <tr
                                       key={engineer.id}
-                                      className="border-b border-gray-700 last:border-b-0 hover:bg-gray-800 transition-colors"
+                                      className="border-b border-gray-700 last:border-b-0 hover:bg-gray-800 transition-colors border-b-lg"
                                     >
                                       <td className="py-3 px-4 text-(--text-primary)">
                                         {engineer.id}
@@ -365,7 +365,7 @@ export default function ManagerDetail({
                                       <td className="py-3 px-4 ">
                                         <HoverName title="Unassign Engineer">
                                           <Button
-                                            className="bg-accent-color text-text-primary border border-text-secondary hover:border-accent-color hover:bg-[#101828] hover:text-accent-hover"
+                                            className="bg-(--color-bg-accent) text-(--color-text-secondary) border border-(--color-border-secondary) hover:border-(--color-bg-accent) hover:bg-transparent hover:text-(--color-bg-accent)"
                                             onClick={() =>
                                               handleDeleteEngineerAssignment(
                                                 engineer.id
@@ -389,7 +389,7 @@ export default function ManagerDetail({
                             </table>
                           </div>
                         ) : (
-                          <div className="text-center py-8 text-(--text-secondary) flex flex-col items-center">
+                          <div className=" bg-gray-800 rounded-lg text-center py-8 text-(--text-secondary) flex flex-col items-center">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               className="h-16 w-16 text-gray-600 mb-4"
@@ -405,7 +405,7 @@ export default function ManagerDetail({
                               />
                             </svg>
                             <p>No engineer assignments found.</p>
-                            <button className="mt-4 px-4 py-2 bg-accent-color hover:bg-accent-hover text-white rounded-md transition-colors text-sm">
+                            <button className="mt-4 px-4 py-2 bg-(--color-bg-accent) hover:bg-(--color-bg-accent-hover) text-(--color-text-secondary) rounded-md transition-colors text-sm">
                               Assign New Engineer
                             </button>
                           </div>
@@ -439,7 +439,7 @@ export default function ManagerDetail({
               <HoverName title="Assign Engineer">
                 <Button
                   variant="outline"
-                  className="bg-transparent text-text-primary border border-text-secondary hover:border-accent-color hover:bg-[#101828] hover:text-accent-hover"
+                  className="bg-transparent text-(--color-text-primary) border border-(--color-text-primary) hover:border-(--color-border-accent) hover:bg-(--color-bg-accent-hover) hover:text-(--color-text-secondary)"
                   onClick={handleAssignEngineer}
                 >
                   <PlusIcon className="size-3" />
@@ -450,7 +450,7 @@ export default function ManagerDetail({
               <HoverName title="Assign Meter">
                 <Button
                   variant="outline"
-                  className="bg-surface-dark text-text-primary border border-text-secondary hover:border-accent-color hover:bg-[#101828] hover:text-accent-hover"
+                  className="bg-(--color-bg-accent) text-(--color-text-secondary) border border-(--color-bg-accent-hover) (--color-text-secondary) hover:border-(--color-bg-accent) hover:bg-(--color-bg-accent-hover)"
                   onClick={handleAssignMeter}
                 >
                   <PlusIcon className="size-3" />
