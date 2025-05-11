@@ -1,21 +1,30 @@
-import { useState, useEffect } from "react";
-import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import { useState, useEffect } from 'react';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Manager } from "@/store/slices/admin/adminTypes";
+} from '@/components/ui/dialog';
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Manager } from '@/store/slices/admin/adminTypes';
 import {
   assignEngineerToManager,
   fetchEngineers,
   fetchManagerDetails,
-} from "@/store/slices/admin/adminThunks";
-import { RootState, AppDispatch } from "@/store";
+} from '@/store/slices/admin/adminThunks';
+import { RootState, AppDispatch } from '@/store';
 
 // Redux hooks
 export const useAppDispatch = () => useDispatch<AppDispatch>();
@@ -33,10 +42,19 @@ export default function AssignEngineerDialog({
   manager,
 }: AssignEngineerDialogProps) {
   const dispatch = useAppDispatch();
-  const { engineers, isLoading, managerDetail } = useAppSelector(
+  const [Loading, setLoading] = useState(false);
+  const { engineers, managerDetail } = useAppSelector(
     (state: RootState) => state.admin
   );
-  const [selectedEngineerId, setSelectedEngineerId] = useState<string>("");
+  const [selectedEngineerId, setSelectedEngineerId] = useState<string>('');
+  const [isAssigning, setIsAssigning] = useState(false);
+
+  // Reset selectedEngineerId when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedEngineerId('');
+    }
+  }, [isOpen]);
 
   // Fetch data only when the dialog opens and data is not already available
   useEffect(() => {
@@ -44,7 +62,10 @@ export default function AssignEngineerDialog({
 
     // Only fetch engineers if they're not already loaded
     if (!engineers || engineers.length === 0) {
-      dispatch(fetchEngineers());
+      setLoading(true);
+      dispatch(fetchEngineers()).then(() => {
+        setLoading(false);
+      });
     }
 
     // Only fetch manager details if they're not already loaded for this manager
@@ -59,19 +80,27 @@ export default function AssignEngineerDialog({
     if (!selectedEngineerId) return;
 
     try {
+      setIsAssigning(true);
       await dispatch(
         assignEngineerToManager({
           manager_id: manager.id,
           engineer_id: parseInt(selectedEngineerId, 10),
         })
-      ).unwrap();
+      )
+        .unwrap()
+        .then(() => {
+          setIsAssigning(false);
+        });
 
+      setIsAssigning(true);
       // Refresh manager details after successful assignment
-      dispatch(fetchManagerDetails(manager.id));
+      dispatch(fetchManagerDetails(manager.id)).then(() => {
+        setIsAssigning(false);
+      });
 
       onClose();
     } catch (error) {
-      console.error("Failed to assign engineer:", error);
+      console.error('Failed to assign engineer:', error);
     }
   };
 
@@ -103,20 +132,26 @@ export default function AssignEngineerDialog({
             <Label htmlFor="engineer-id" className="text-text-secondary">
               Select Engineer
             </Label>
-            <select
-              id="engineer-id"
+            <Select
               value={selectedEngineerId}
-              onChange={(e) => setSelectedEngineerId(e.target.value)}
-              className="w-full h-10 px-3 py-2 bg-[#1D2939] border border-gray-700 rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color"
+              onValueChange={setSelectedEngineerId}
             >
-              <option value="">Select an engineer</option>
-              {availableEngineers.map((engineer) => (
-                <option key={engineer.id} value={engineer.id.toString()}>
-                  {engineer.first_name} {engineer.last_name} (
-                  {engineer.username})
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                {availableEngineers.length > 0 ? (
+                  <SelectValue placeholder="Select Engineer" />
+                ) : (
+                  'No Engineer'
+                )}
+              </SelectTrigger>
+              <SelectContent>
+                {availableEngineers.map((engineer) => (
+                  <SelectItem key={engineer.id} value={engineer.id.toString()}>
+                    {engineer.first_name} {engineer.last_name} (
+                    {engineer.username})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <DialogFooter className="pt-4">
@@ -130,10 +165,10 @@ export default function AssignEngineerDialog({
             </Button>
             <Button
               type="submit"
-              disabled={!selectedEngineerId || isLoading}
+              disabled={!selectedEngineerId || Loading || isAssigning}
               className="bg-(--color-bg-accent) text-(--color-text-secondary) hover:bg-(--color-bg-accent-hover) transition-colors"
             >
-              {isLoading ? "Assigning..." : "Assign Engineer"}
+              {isAssigning ? 'Assigning...' : 'Assign Engineer'}
             </Button>
           </DialogFooter>
         </form>

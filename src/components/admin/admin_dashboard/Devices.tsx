@@ -1,20 +1,21 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addDevice, fetchMeters } from "@/store/slices/admin/adminThunks";
-import { RootState, AppDispatch } from "@/store";
-import { PlusIcon, SearchIcon } from "lucide-react";
-import AddDialogBox from "./AddDialogBox";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import Loading from "@/components/common/Loading";
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addDevice, fetchMeters } from '@/store/slices/admin/adminThunks';
+import { RootState, AppDispatch } from '@/store';
+import { PlusIcon } from 'lucide-react';
+import AddDialogBox from './AddDialogBox';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import Loading from '@/components/common/Loading';
+import SearchInput from '@/components/common/SearchInput';
 
 const addDeviceSchema = z.object({
   device_id: z.coerce
     .number()
-    .min(1, "Device ID is required and must be a number"),
-  location: z.string().min(1, "Location is required"),
+    .min(1, 'Device ID is required and must be a number'),
+  location: z.string().min(1, 'Location is required'),
 });
 
 type FormValues = z.infer<typeof addDeviceSchema>;
@@ -26,7 +27,7 @@ export default function Devices() {
   );
   const [isAddDeviceOpen, setIsAddDeviceOpen] = useState(false);
   const location = useLocation();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [filteredMeters, setFilteredMeters] = useState(get_meters);
   const navigate = useNavigate();
 
@@ -34,7 +35,7 @@ export default function Devices() {
     resolver: zodResolver(addDeviceSchema),
     defaultValues: {
       device_id: 0,
-      location: "",
+      location: '',
     },
   });
 
@@ -43,7 +44,7 @@ export default function Devices() {
   }, [dispatch, location.key]);
 
   useEffect(() => {
-    if (searchTerm.trim() === "") {
+    if (searchTerm.trim() === '') {
       setFilteredMeters(get_meters);
     } else {
       const lowercaseSearchTerm = searchTerm.toLowerCase();
@@ -67,7 +68,7 @@ export default function Devices() {
   };
 
   const handleDeviceClick = (device_id: number, id: number) => {
-    console.log("Device ID clicked:", device_id);
+    console.log('Device ID clicked:', device_id);
     // Directly navigate to the device details page
     // The data will be fetched in the DeviceDetails component
     navigate(`/admin/dashboard/${device_id}`, { state: { meterId: id } });
@@ -79,16 +80,11 @@ export default function Devices() {
         <h1 className="text-2xl font-bold">Devices</h1>
 
         <div className="flex items-center gap-2">
-          <div className="relative w-64">
-            <input
-              type="text"
-              placeholder="Search by ID or location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          </div>
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search by ID or location..."
+          />
 
           <button
             className="bg-(--color-bg-accent) text-[#111828] px-4 py-2 rounded-md flex items-center gap-2 hover:bg-(--color-bg-accent-hover) transition-colors"

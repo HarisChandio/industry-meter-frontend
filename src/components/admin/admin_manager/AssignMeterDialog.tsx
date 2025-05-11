@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import { useState, useEffect } from 'react';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import {
   Dialog,
   DialogContent,
@@ -7,16 +7,23 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Manager, GetMeters } from "@/store/slices/admin/adminTypes";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Manager, GetMeters } from '@/store/slices/admin/adminTypes';
 import {
   assignMeterToManager,
   fetchMeters,
   fetchManagerDetails,
-} from "@/store/slices/admin/adminThunks";
-import { RootState, AppDispatch } from "@/store";
+} from '@/store/slices/admin/adminThunks';
+import { RootState, AppDispatch } from '@/store';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // Redux hooks
 export const useAppDispatch = () => useDispatch<AppDispatch>();
@@ -34,10 +41,19 @@ export default function AssignMeterDialog({
   manager,
 }: AssignMeterDialogProps) {
   const dispatch = useAppDispatch();
-  const { get_meters, isLoading, managerDetail } = useAppSelector(
+  const { get_meters, managerDetail } = useAppSelector(
     (state: RootState) => state.admin
   );
-  const [selectedMeterId, setSelectedMeterId] = useState<string>("");
+  const [selectedMeterId, setSelectedMeterId] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
+
+  // Reset state when dialog opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedMeterId('');
+    }
+  }, [isOpen]);
 
   // Fetch data only when the dialog opens and data is not already available
   useEffect(() => {
@@ -45,12 +61,14 @@ export default function AssignMeterDialog({
 
     // Only fetch meters if they're not already loaded
     if (!get_meters || get_meters.length === 0) {
-      dispatch(fetchMeters());
+      setIsLoading(true);
+      dispatch(fetchMeters()).then(() => setIsLoading(false));
     }
 
     // Only fetch manager details if they're not already loaded for this manager
     if (!managerDetail || managerDetail.manager.id !== manager.id) {
-      dispatch(fetchManagerDetails(manager.id));
+      setIsLoading(true);
+      dispatch(fetchManagerDetails(manager.id)).then(() => setIsLoading(false));
     }
   }, [dispatch, get_meters, isOpen, manager, managerDetail]);
 
@@ -60,19 +78,23 @@ export default function AssignMeterDialog({
     if (!selectedMeterId) return;
 
     try {
+      setIsAssigning(true);
       await dispatch(
         assignMeterToManager({
           meter: parseInt(selectedMeterId, 10),
           manager: manager.id,
         })
-      ).unwrap();
+      ).unwrap().then(() => setIsAssigning(false));
 
+      setIsAssigning(true);
       // Refresh manager details after successful assignment
-      dispatch(fetchManagerDetails(manager.id));
+      dispatch(fetchManagerDetails(manager.id)).then(() => setIsAssigning(false));
 
+      // Reset the selected meter and close the dialog
+      setSelectedMeterId('');
       onClose();
     } catch (error) {
-      console.error("Failed to assign meter:", error);
+      console.error('Failed to assign meter:', error);
     }
   };
 
@@ -111,36 +133,47 @@ export default function AssignMeterDialog({
             <Label htmlFor="meter-id" className="text-text-secondary">
               Select Meter
             </Label>
-            <select
-              id="meter-id"
+            <Select
               value={selectedMeterId}
-              onChange={(e) => setSelectedMeterId(e.target.value)}
-              className="w-full h-10 px-3 py-2 bg-[#1D2939] border border-gray-700 rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-color"
+              onValueChange={setSelectedMeterId}
+              key={isOpen ? 'open' : 'closed'} // Force re-render when dialog opens/closes
             >
-              <option value="">Select a meter</option>
-              {availableMeters.map((meter: GetMeters) => (
-                <option key={meter.id} value={meter.id.toString()}>
-                  ID: {meter.id} - Device: {meter.device_id} ({meter.location})
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                {availableMeters.length > 0 ? (
+                  <SelectValue placeholder="Select Meter" />
+                ) : (
+                  'No Meter'
+                )}
+              </SelectTrigger>
+              <SelectContent>
+                {availableMeters.map((meter: GetMeters) => (
+                  <SelectItem key={meter.id} value={meter.id.toString()}>
+                    ID: {meter.id} - Device: {meter.device_id} ({meter.location}
+                    )
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <DialogFooter className="pt-4">
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={() => {
+                setSelectedMeterId(''); // Reset selection when canceling
+                onClose();
+              }}
               className="bg-transparent text-text-primary border border-text-secondary hover:border-accent-color"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={!selectedMeterId || isLoading}
+              disabled={!selectedMeterId || isLoading || isAssigning}
               className="bg-(--color-bg-accent) text-(--color-text-secondary) hover:bg-(--color-bg-accent-hover) transition-colors"
             >
-              {isLoading ? "Assigning..." : "Assign Meter"}
+              {isAssigning ? 'Assigning...' : 'Assign Meter'}
             </Button>
           </DialogFooter>
         </form>
