@@ -4,13 +4,13 @@ import { fetchManagers } from '@/store/slices/admin/adminThunks';
 import { RootState, AppDispatch } from '@/store';
 import { Manager as ManagerType } from '@/store/slices/admin/adminTypes';
 import ManagerDetail from './ManagerDetail';
-import { SearchIcon } from 'lucide-react';
 import Loading from '@/components/common/Loading';
+import SearchInput from '@/components/common/SearchInput';
 
 export default function Manager() {
   const dispatch = useDispatch<AppDispatch>();
   const [isLoading, setIsLoading] = useState(false);
-  const { managers, error } = useSelector((state: RootState) => state.admin);
+  const { managers } = useSelector((state: RootState) => state.admin);
   const [selectedManager, setSelectedManager] = useState<ManagerType | null>(
     null
   );
@@ -40,28 +40,15 @@ export default function Manager() {
     );
   });
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <p className="text-red-500">Error: {error}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Managers</h1>
-        <div className="relative w-64">
-          <input
-            type="text"
-            placeholder="Search managers..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        </div>
+        <SearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Search managers..."
+        />
       </div>
 
       {isLoading ? (

@@ -40,8 +40,25 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
 
           {/* Center Section */}
           <div className="flex flex-col flex-grow mx-0 lg:mx-4 w-full lg:w-auto mb-4 lg:mb-0">
+            {/* Emergency Stop Status Bar */}
+            <div className="">
+              <div className="flex justify-between ">
+                <span className="text-[#00BFFF] text-xs md:text-sm">
+                  Emergency Stop
+                </span>
+                <span className="text-[#FFFF00] text-xs md:text-sm">
+                  {deviceData?.alarm_emergency_stop ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+              <div className="h-3 md:h-4 w-full bg-gray-700">
+                {deviceData?.alarm_emergency_stop && (
+                  <div className="h-full bg-red-600 w-full"></div>
+                )}
+              </div>
+            </div>
+
             {/* Title */}
-            <div className="text-center mb-2">
+            <div className="text-center mt-4 mb-2">
               <span className="text-[#00BFFF] text-xl md:text-2xl lg:text-3xl font-bold">
                 Manual Mode
               </span>
@@ -91,7 +108,6 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
             <div className="flex mt-2 md:mt-4 justify-between">
               {/* Left Percentage */}
               <div className="flex-1 pr-2 md:pr-4">
-
                 <div className="flex justify-between mt-1">
                   <span className="text-[#00BFFF] text-xs md:text-sm">
                     kVAr
@@ -130,25 +146,9 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
                     style={{ width: `0` }}
                   ></div>
                 </div>
-
               </div>
             </div>
-            <div>
-              {/* Emergency Stop Status Bar */}
-              <div className="mt-2">
-                <div className="flex justify-between mb-1">
-                  <span className="text-[#00BFFF] text-xs md:text-sm">Emergency Stop</span>
-                  <span className="text-[#FFFF00] text-xs md:text-sm">
-                    {deviceData?.alarm_emergency_stop ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
-                <div className="h-3 md:h-4 w-full bg-gray-700">
-                  {deviceData?.alarm_emergency_stop  && (
-                    <div className="h-full bg-red-600 w-full"></div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <div></div>
           </div>
 
           {/* Total */}
@@ -157,18 +157,15 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
               Total
             </div>
             <div className="text-[#FFFF00] text-lg md:text-xl font-bold">
-              {/* {deviceData?.instantaneous_power_kw || 0}{' '} */}
-              0
+              {/* {deviceData?.instantaneous_power_kw || 0}{' '} */}0
               <span className="text-[#00BFFF]">kW</span>
             </div>
             <div className="text-[#FFFF00] text-lg md:text-xl font-bold">
-              {/* {deviceData?.phase_b_apparent_power || 0}{' '} */}
-              0
+              {/* {deviceData?.phase_b_apparent_power || 0}{' '} */}0
               <span className="text-[#00BFFF]">kVA</span>
             </div>
             <div className="text-[#FFFF00] text-lg md:text-xl font-bold">
-              {/* {deviceData?.phase_c_reactive_power || 0}{' '} */}
-              0
+              {/* {deviceData?.phase_c_reactive_power || 0}{' '} */}0
               <span className="text-[#00BFFF]">kVAr</span>
             </div>
             <div className="flex items-center">
@@ -176,7 +173,7 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
                 {/* {deviceData?.power_percentage
                   ? (deviceData.power_percentage / 100).toFixed(2)
                   : '0.00'} */}
-                  0
+                0
               </span>
               <span className="text-[#00BFFF] ml-1 text-lg md:text-xl">pf</span>
             </div>
@@ -186,11 +183,6 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
           </div>
         </div>
 
-
-
-
-
-
         {/* Right Side - Total and Energy Generator */}
         <div className="flex gap-4 md:gap-8 lg:gap-4 w-full lg:w-auto">
           {/* Energy Generator */}
@@ -199,19 +191,16 @@ function HeaderStats({ deviceData }: { deviceData?: DeviceData }) {
               Energy Generator
             </div>
             <div className="text-[#FFFF00] text-lg md:text-xl font-bold">
-              {/* {deviceData?.instantaneous_power_kw || 0}{' '} */}
-              0
+              {/* {deviceData?.instantaneous_power_kw || 0}{' '} */}0
               <span className="text-[#00BFFF]">kWh</span>
               <span className="text-[#00BFFF] ml-1">+</span>
             </div>
             <div className="text-[#FFFF00] text-lg md:text-xl font-bold">
-              {/* {deviceData?.phase_c_apparent_power || 0}{' '} */}
-              0
+              {/* {deviceData?.phase_c_apparent_power || 0}{' '} */}0
               <span className="text-[#00BFFF]">kVAh</span>
             </div>
             <div className="text-[#FFFF00] text-lg md:text-xl font-bold">
-              {/* {deviceData?.phase_c_reactive_power || 0}{' '} */}
-              0
+              {/* {deviceData?.phase_c_reactive_power || 0}{' '} */}0
               <span className="text-[#00BFFF]">kVArh</span>
             </div>
           </div>

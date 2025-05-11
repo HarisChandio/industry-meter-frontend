@@ -19,11 +19,6 @@ export default function ProtectedRoute({
   );
   const token = getCookie("token");
 
-  // Show loading state while checking authentication
-  // if (isLoading) {
-  //   return <Loading />;
-  // }
-
   // If not authenticated, redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/sign-in" replace />;

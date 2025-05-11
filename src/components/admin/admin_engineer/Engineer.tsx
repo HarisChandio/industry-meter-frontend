@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchEngineers } from '@/store/slices/admin/adminThunks';
-import { SearchIcon } from 'lucide-react';
 import { Engineer as EngineerType } from '@/store/slices/admin/adminTypes';
 import Loading from '@/components/common/Loading';
+import SearchInput from '../../common/SearchInput';
 
 export default function Engineer() {
   const dispatch = useDispatch<AppDispatch>();
-  const { engineers, error } = useSelector((state: RootState) => state.admin);
+  const { engineers } = useSelector((state: RootState) => state.admin);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -30,28 +30,15 @@ export default function Engineer() {
     );
   });
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <p className="text-destructive">Error: {error}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Engineers</h1>
-        <div className="relative w-64">
-          <input
-            type="text"
-            placeholder="Search engineers..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        </div>
+        <SearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Search engineers..."
+        />
       </div>
 
       {isLoading ? (

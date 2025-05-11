@@ -28,6 +28,7 @@ import { RootState } from '@/store';
 import { HoverName } from '@/components/common/HoverName';
 import { toast } from 'sonner';
 import apiClient from '@/lib/axios';
+import Loading from '@/components/common/Loading';
 
 export default function ManagerDetail({
   selectedManager,
@@ -67,15 +68,13 @@ export default function ManagerDetail({
     const isCurrentManagerDataLoaded =
       managerDetail && managerDetail.manager.id === managerId;
 
-    // Fetch data if:
-    // 1. We don't have data for this manager in the state, OR
-    // 2. The manager ID has changed from the last one we viewed
     if (!isCurrentManagerDataLoaded || lastManagerIdRef.current !== managerId) {
       dispatch(fetchManagerDetails(managerId));
       dataFetchedRef.current[managerId] = true;
       lastManagerIdRef.current = managerId;
     }
-  }, [isDialogOpen, selectedManager, dispatch, managerDetail]);
+  }, [dispatch]);
+  // }, [isDialogOpen, selectedManager, dispatch, managerDetail]);
 
   const handleAssignMeter = () => {
     setIsAssignMeterDialogOpen(true);
@@ -211,14 +210,7 @@ export default function ManagerDetail({
                 </div>
               </div>
 
-              {isLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <div className="w-10 h-10 border-4 border-transparent rounded-full animate-spin border-t-accent-color"></div>
-                  <span className="ml-3 text-(--text-secondary)">
-                    Loading assignments...
-                  </span>
-                </div>
-              ) : managerDetail ? (
+              {managerDetail ? (
                 <div className="mt-6">
                   {/* Tabs Navigation */}
                   <div className="flex mb-3">
@@ -244,7 +236,11 @@ export default function ManagerDetail({
                     </button>
                   </div>
 
-                  {activeTab === 'meter' && (
+                  {isLoading ? (
+                    <div className="flex justify-center py-10">
+                      <Loading />
+                    </div>
+                  ) : activeTab === 'meter' ? (
                     <div className="bg-gray-800 rounded-lg border border-gray-700 shadow-md">
                       <div className="overflow-x-auto">
                         {managerDetail.meters &&
@@ -269,7 +265,7 @@ export default function ManagerDetail({
                                   (meter: GetMeters) => (
                                     <tr
                                       key={meter.id}
-                                      className="border-b border-gray-700 last:border-b-0 hover:bg-gray-800 transition-colors rounded-b-lg "
+                                      className="border-b border-gray-700 last:border-b-0 hover:bg-gray-800 transition-colors rounded-b-lg"
                                     >
                                       <td className="py-3 px-4 text-(--text-primary)">
                                         {meter.device_id}
@@ -277,7 +273,7 @@ export default function ManagerDetail({
                                       <td className="py-3 px-4 text-(--text-primary)">
                                         {meter.location}
                                       </td>
-                                      <td className="py-3 px-4 ">
+                                      <td className="py-3 px-4">
                                         <HoverName title="Unassign Meter">
                                           <Button
                                             className="bg-(--color-bg-accent) text-(--color-text-secondary) border border-(--color-border-secondary) hover:border-(--color-bg-accent) hover:bg-transparent hover:text-(--color-bg-accent)"
@@ -303,7 +299,7 @@ export default function ManagerDetail({
                             </table>
                           </div>
                         ) : (
-                          <div className=" bg-gray-800 rounded-lg text-center py-8 text-(--text-secondary) flex flex-col items-center">
+                          <div className="bg-gray-800 rounded-lg text-center py-8 text-(--text-secondary) flex flex-col items-center">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               className="h-16 w-16 text-gray-600 mb-4"
@@ -319,16 +315,17 @@ export default function ManagerDetail({
                               />
                             </svg>
                             <p>No meter assignments found.</p>
-                            <button className="mt-4 px-4 py-2 bg-(--color-bg-accent) hover:bg-(--color-bg-accent-hover) text-(--color-text-secondary) rounded-md transition-colors text-sm">
+                            <button
+                              onClick={handleAssignMeter}
+                              className="mt-4 px-4 py-2 bg-(--color-bg-accent) hover:bg-(--color-bg-accent-hover) text-(--color-text-secondary) rounded-md transition-colors text-sm"
+                            >
                               Assign New Meter
                             </button>
                           </div>
                         )}
                       </div>
                     </div>
-                  )}
-
-                  {activeTab === 'engineer' && (
+                  ) : activeTab === 'engineer' ? (
                     <div className="bg-gray-800 rounded-lg border border-gray-700 shadow-md">
                       <div className="overflow-x-auto">
                         {managerDetail &&
@@ -362,7 +359,7 @@ export default function ManagerDetail({
                                       <td className="py-3 px-4 text-(--text-primary)">
                                         {engineer.username}
                                       </td>
-                                      <td className="py-3 px-4 ">
+                                      <td className="py-3 px-4">
                                         <HoverName title="Unassign Engineer">
                                           <Button
                                             className="bg-(--color-bg-accent) text-(--color-text-secondary) border border-(--color-border-secondary) hover:border-(--color-bg-accent) hover:bg-transparent hover:text-(--color-bg-accent)"
@@ -389,7 +386,7 @@ export default function ManagerDetail({
                             </table>
                           </div>
                         ) : (
-                          <div className=" bg-gray-800 rounded-lg text-center py-8 text-(--text-secondary) flex flex-col items-center">
+                          <div className="bg-gray-800 rounded-lg text-center py-8 text-(--text-secondary) flex flex-col items-center">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               className="h-16 w-16 text-gray-600 mb-4"
@@ -405,14 +402,17 @@ export default function ManagerDetail({
                               />
                             </svg>
                             <p>No engineer assignments found.</p>
-                            <button className="mt-4 px-4 py-2 bg-(--color-bg-accent) hover:bg-(--color-bg-accent-hover) text-(--color-text-secondary) rounded-md transition-colors text-sm">
+                            <button
+                              onClick={handleAssignEngineer}
+                              className="mt-4 px-4 py-2 bg-(--color-bg-accent) hover:bg-(--color-bg-accent-hover) text-(--color-text-secondary) rounded-md transition-colors text-sm"
+                            >
                               Assign New Engineer
                             </button>
                           </div>
                         )}
                       </div>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               ) : (
                 <div className="mt-6 p-8 bg-(--surface-dark) rounded-lg border border-gray-700 text-center text-(--text-secondary)">

@@ -1,4 +1,3 @@
-import { Loader2Icon } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   deleteDevice,
