@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addDevice, fetchMeters } from '@/store/slices/admin/adminThunks';
+import { addDevice, fetchDeviceData, fetchMeters } from '@/store/slices/admin/adminThunks';
 import { RootState, AppDispatch } from '@/store';
 import { PlusIcon } from 'lucide-react';
 import AddDialogBox from './AddDialogBox';
@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Loading from '@/components/common/Loading';
 import SearchInput from '@/components/common/SearchInput';
+import { toast } from 'sonner';
 
 const addDeviceSchema = z.object({
   device_id: z.coerce
@@ -69,10 +70,20 @@ export default function Devices() {
 
   const handleDeviceClick = (device_id: number, id: number) => {
     console.log('Device ID clicked:', device_id);
-    // Directly navigate to the device details page
-    // The data will be fetched in the DeviceDetails component
-    navigate(`/admin/dashboard/${device_id}`, { state: { meterId: id } });
-  };
+
+          dispatch(fetchDeviceData(device_id))
+            .unwrap()
+            .then(() => {
+              navigate(`/admin/dashboard/${device_id}`, {
+                state: { meterId: id },
+              });
+            })
+            .catch((error) => {
+              console.error('Failed to fetch device data:', error);
+              toast.error('Failed to load device data');
+            });
+          }
+
 
   return (
     <div className="flex flex-col gap-4">
